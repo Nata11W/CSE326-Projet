@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Book, view and cancel your medical appointments online.">
+  <title>Book an appointment – WebCareBooking</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true">+</span> WebCareBooking</a>
+      <nav aria-label="Main navigation">
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu">Menu</button>
+        <ul id="nav-menu" class="nav-menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="book.html" aria-current="page">Book appointment</a></li>
+          <li><a href="admin.html">Clinic dashboard</a></li>
+          <li><button class="theme-toggle" type="button" aria-label="Switch dark or light mode">◐</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container page">
+
+    <!-- ============ LOGIN / REGISTER ============ -->
+    <section id="auth-section" class="auth" aria-labelledby="auth-title" hidden>
+      <h1 id="auth-title">Patient access</h1>
+      <p class="muted">Log in or create a free account to book an appointment.</p>
+
+      <div class="tabs" role="tablist" aria-label="Login or register">
+        <button type="button" role="tab" id="tab-login" aria-selected="true" aria-controls="login-form">Log in</button>
+        <button type="button" role="tab" id="tab-register" aria-selected="false" aria-controls="register-form">Create account</button>
+      </div>
+
+      <form id="login-form" class="card form" role="tabpanel" aria-labelledby="tab-login" novalidate>
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" name="email" autocomplete="email" required>
+          <p class="error" id="login-email-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" name="password" autocomplete="current-password" required>
+          <p class="error" id="login-password-error" aria-live="polite"></p>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+      </form>
+
+      <form id="register-form" class="card form" role="tabpanel" aria-labelledby="tab-register" novalidate hidden>
+        <div class="field">
+          <label for="reg-name">Full name</label>
+          <input type="text" id="reg-name" name="fullname" autocomplete="name" minlength="3" required>
+          <p class="error" id="reg-name-error" aria-live="polite"></p>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="reg-email">Email</label>
+            <input type="email" id="reg-email" name="email" autocomplete="email" required>
+            <p class="error" id="reg-email-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="reg-phone">Phone</label>
+            <input type="tel" id="reg-phone" name="phone" autocomplete="tel" placeholder="+91 98765 43210" required>
+            <p class="error" id="reg-phone-error" aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="reg-dob">Date of birth</label>
+          <input type="date" id="reg-dob" name="dob" required>
+          <p class="error" id="reg-dob-error" aria-live="polite"></p>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" name="password" autocomplete="new-password" minlength="8" required aria-describedby="pw-hint">
+            <p class="hint" id="pw-hint">At least 8 characters, with a letter and a number.</p>
+            <p class="error" id="reg-password-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="reg-confirm">Confirm password</label>
+            <input type="password" id="reg-confirm" name="confirm" autocomplete="new-password" required>
+            <p class="error" id="reg-confirm-error" aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="field">
+          <label class="check">
+            <input type="checkbox" id="reg-consent" name="consent" required>
+            I agree that my details are used to manage my appointments.
+          </label>
+          <p class="error" id="reg-consent-error" aria-live="polite"></p>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Create account</button>
+      </form>
+    </section>
+
+    <!-- ============ PATIENT AREA ============ -->
+    <section id="app-section" hidden>
+      <div class="page-head">
+        <h1>Hello, <span id="patient-name"></span></h1>
+        <button type="button" id="logout-btn" class="btn btn-ghost">Log out</button>
+      </div>
+
+      <div class="layout-2col">
+        <section class="card" aria-labelledby="book-title">
+          <h2 id="book-title">Book an appointment</h2>
+          <form id="booking-form" novalidate>
+            <fieldset>
+              <legend>1. Choose a doctor</legend>
+              <label for="doctor-search">Search by name or specialty</label>
+              <input type="search" id="doctor-search" placeholder="e.g. Pediatrics">
+              <div id="doctor-list" class="choice-grid" role="radiogroup" aria-label="Doctors"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>2. Pick a date and time</legend>
+              <label for="booking-date">Date</label>
+              <input type="date" id="booking-date" required>
+              <div id="slot-list" aria-live="polite"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>3. Reason for visit</legend>
+              <label for="reason">Reason (optional)</label>
+              <textarea id="reason" rows="3" maxlength="200" placeholder="e.g. Fever since two days"></textarea>
+              <p class="hint"><span id="reason-count">0</span>/200 characters</p>
+            </fieldset>
+
+            <p id="booking-summary" class="summary" aria-live="polite"></p>
+            <button type="submit" id="confirm-btn" class="btn btn-primary btn-block" disabled>Confirm booking</button>
+          </form>
+        </section>
+
+        <section class="card" aria-labelledby="my-title">
+          <div class="card-head">
+            <h2 id="my-title">My appointments</h2>
+            <label class="sr-only" for="status-filter">Filter by status</label>
+            <select id="status-filter">
+              <option value="all">All</option>
+              <option value="booked">Booked</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <ul id="my-appointments" class="appt-list"></ul>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 WebCareBooking · Student project, Lovely Professional University.</p>
+    </div>
+  </footer>
+
+  <script src="js/storage.js"></script>
+  <script src="js/slots.js"></script>
+  <script src="js/validate.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/patient.js"></script>
+</body>
+</html>

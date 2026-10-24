@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Clinic dashboard: manage working hours and appointments.">
+  <title>Clinic dashboard – WebCareBooking</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true">+</span> WebCareBooking</a>
+      <nav aria-label="Main navigation">
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu">Menu</button>
+        <ul id="nav-menu" class="nav-menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="book.html">Book appointment</a></li>
+          <li><a href="admin.html" aria-current="page">Clinic dashboard</a></li>
+          <li><button class="theme-toggle" type="button" aria-label="Switch dark or light mode">◐</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container page">
+
+    <!-- ============ ADMIN LOGIN ============ -->
+    <section id="admin-login" class="auth" aria-labelledby="admin-login-title" hidden>
+      <h1 id="admin-login-title">Clinic dashboard</h1>
+      <p class="muted">For doctors and clinic staff.</p>
+      <form id="admin-login-form" class="card form" novalidate>
+        <div class="field">
+          <label for="admin-email">Staff email</label>
+          <input type="email" id="admin-email" name="email" autocomplete="username" required>
+          <p class="error" id="admin-email-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" name="password" autocomplete="current-password" required>
+          <p class="error" id="admin-password-error" aria-live="polite"></p>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        <p class="hint">Demo login: <code>admin@webcare.com</code> / <code>Admin@123</code></p>
+      </form>
+    </section>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section id="admin-app" hidden>
+      <div class="page-head">
+        <h1>Dashboard</h1>
+        <button type="button" id="admin-logout" class="btn btn-ghost">Log out</button>
+      </div>
+
+      <section class="stats" aria-label="Key figures">
+        <article class="stat"><p class="stat-value" id="stat-today">0</p><p class="stat-label">Booked today</p></article>
+        <article class="stat"><p class="stat-value" id="stat-upcoming">0</p><p class="stat-label">Upcoming</p></article>
+        <article class="stat"><p class="stat-value" id="stat-completed">0</p><p class="stat-label">Completed</p></article>
+        <article class="stat"><p class="stat-value" id="stat-cancel">0%</p><p class="stat-label">Cancellation rate</p></article>
+      </section>
+
+      <section class="card" aria-labelledby="appts-title">
+        <div class="card-head">
+          <h2 id="appts-title">Appointments</h2>
+          <button type="button" id="export-btn" class="btn btn-small">Export CSV</button>
+        </div>
+        <form id="filter-form" class="filters">
+          <div class="field">
+            <label for="filter-doctor">Doctor</label>
+            <select id="filter-doctor" name="doctor"></select>
+          </div>
+          <div class="field">
+            <label for="filter-date">Date</label>
+            <input type="date" id="filter-date" name="date">
+          </div>
+          <div class="field">
+            <label for="filter-status">Status</label>
+            <select id="filter-status" name="status">
+              <option value="all">All</option>
+              <option value="booked">Booked</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <button type="reset" class="btn btn-ghost btn-small">Clear filters</button>
+        </form>
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="sr-only">List of appointments</caption>
+            <thead>
+              <tr>
+                <th scope="col">Date</th><th scope="col">Time</th><th scope="col">Doctor</th>
+                <th scope="col">Patient</th><th scope="col">Reason</th><th scope="col">Status</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="appt-body"></tbody>
+          </table>
+        </div>
+        <p id="appt-empty" class="muted">No appointments match these filters.</p>
+      </section>
+
+      <div class="layout-2col">
+        <section class="card" aria-labelledby="sched-title">
+          <h2 id="sched-title">Working hours</h2>
+          <form id="schedule-form" novalidate>
+            <div class="field">
+              <label for="sched-doctor">Doctor</label>
+              <select id="sched-doctor"></select>
+            </div>
+            <fieldset>
+              <legend>Weekly schedule</legend>
+              <div id="hours-rows"></div>
+            </fieldset>
+            <div class="field-row">
+              <div class="field">
+                <label for="slot-length">Appointment length</label>
+                <select id="slot-length">
+                  <option value="15">15 minutes</option>
+                  <option value="20">20 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">60 minutes</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="break-start">Break from</label>
+                <input type="time" id="break-start" step="900">
+              </div>
+              <div class="field">
+                <label for="break-end">Break until</label>
+                <input type="time" id="break-end" step="900">
+                <p class="error" id="break-end-error" aria-live="polite"></p>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save working hours</button>
+          </form>
+        </section>
+
+        <div class="stack">
+          <section class="card" aria-labelledby="doc-title">
+            <h2 id="doc-title">Add a doctor</h2>
+            <form id="doctor-form" class="form" novalidate>
+              <div class="field">
+                <label for="doc-name">Name</label>
+                <input type="text" id="doc-name" name="docname" placeholder="Dr. Firstname Lastname" required>
+                <p class="error" id="doc-name-error" aria-live="polite"></p>
+              </div>
+              <div class="field">
+                <label for="doc-specialty">Specialty</label>
+                <select id="doc-specialty" name="specialty" required>
+                  <option value="">Choose…</option>
+                  <option>General Medicine</option>
+                  <option>Pediatrics</option>
+                  <option>Dermatology</option>
+                  <option>Cardiology</option>
+                  <option>Gynecology</option>
+                  <option>Dentistry</option>
+                  <option>Ophthalmology</option>
+                </select>
+                <p class="error" id="doc-specialty-error" aria-live="polite"></p>
+              </div>
+              <button type="submit" class="btn btn-primary">Add doctor</button>
+            </form>
+          </section>
+
+          <section class="card card-danger" aria-labelledby="reset-title">
+            <h2 id="reset-title">Demo data</h2>
+            <p class="muted">Erase all patients and appointments stored in this browser and reload the sample doctors.</p>
+            <button type="button" id="reset-btn" class="btn btn-danger">Reset demo data</button>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 WebCareBooking · Student project, Lovely Professional University.</p>
+    </div>
+  </footer>
+
+  <script src="js/storage.js"></script>
+  <script src="js/slots.js"></script>
+  <script src="js/validate.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

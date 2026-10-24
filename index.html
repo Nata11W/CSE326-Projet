@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WebCareBooking – book medical appointments online, 24/7.">
+  <title>WebCareBooking – Online Medical Appointments</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true">+</span> WebCareBooking</a>
+      <nav aria-label="Main navigation">
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu">Menu</button>
+        <ul id="nav-menu" class="nav-menu">
+          <li><a href="index.html" aria-current="page">Home</a></li>
+          <li><a href="book.html">Book appointment</a></li>
+          <li><a href="admin.html">Clinic dashboard</a></li>
+          <li><button class="theme-toggle" type="button" aria-label="Switch dark or light mode">◐</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-inner">
+        <h1>Book your doctor in under a minute, any time of day.</h1>
+        <p class="lead">WebCareBooking replaces phone queues with a simple online calendar. Patients see real free slots; clinics stop managing appointments by hand.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="book.html">Book an appointment</a>
+          <a class="btn btn-ghost" href="admin.html">I manage a clinic</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section" aria-labelledby="features-title">
+      <h2 id="features-title">Why WebCareBooking?</h2>
+      <div class="feature-grid">
+        <article class="card">
+          <h3>Open 24/7</h3>
+          <p>Book or cancel at midnight or on a Sunday. No phone calls, no waiting on hold.</p>
+        </article>
+        <article class="card">
+          <h3>Real-time slots</h3>
+          <p>Only truly free times are shown, and a slot disappears the moment someone books it.</p>
+        </article>
+        <article class="card">
+          <h3>Fewer no-shows</h3>
+          <p>Browser reminders alert patients before their visit, so fewer appointments are missed.</p>
+        </article>
+        <article class="card">
+          <h3>Less admin work</h3>
+          <p>Clinics set working hours once; the calendar builds itself and the dashboard tracks everything.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="container section" aria-labelledby="how-title">
+      <h2 id="how-title">How it works</h2>
+      <ol class="steps">
+        <li><strong>Create an account</strong> with your name, email and phone.</li>
+        <li><strong>Choose a doctor</strong> and a date.</li>
+        <li><strong>Pick a free time slot</strong> and confirm.</li>
+        <li><strong>Get a reminder</strong> and manage your bookings anytime.</li>
+      </ol>
+    </section>
+
+    <section class="container section" aria-labelledby="doctors-title">
+      <h2 id="doctors-title">Our doctors</h2>
+      <ul id="home-doctors" class="doctor-row"></ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 WebCareBooking · Student project, Lovely Professional University.</p>
+      <p class="small">Demo application – data is stored only in your browser. Not for real medical use.</p>
+    </div>
+  </footer>
+
+  <script src="js/storage.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>
