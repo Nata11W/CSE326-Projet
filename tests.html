@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit tests – WebCareBooking</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+    li { padding: 0.25rem 0; }
+    .pass { color: #1d7a3a; }
+    .fail { color: #b42318; font-weight: 700; }
+    #summary { font-size: 1.2rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>WebCareBooking – unit tests</h1>
+  <p>Open this page in the browser. Every line should be green.</p>
+  <p id="summary"></p>
+  <ul id="results"></ul>
+
+  <script src="../js/slots.js"></script>
+  <script src="../js/validate.js"></script>
+  <script src="test-cases.js"></script>
+  <script>
+    // Tiny test runner: shows each result on the page and in the console
+    const ul = document.getElementById('results');
+    let passed = 0;
+    TEST_CASES.forEach(([name, fn]) => {
+      const li = document.createElement('li');
+      try {
+        fn();
+        li.textContent = '✔ ' + name;
+        li.className = 'pass';
+        passed++;
+      } catch (err) {
+        li.textContent = '✘ ' + name + ' — ' + err.message;
+        li.className = 'fail';
+        console.error(name, err);
+      }
+      ul.appendChild(li);
+    });
+    document.getElementById('summary').textContent =
+      passed + ' / ' + TEST_CASES.length + ' tests passed';
+  </script>
+</body>
+</html>
