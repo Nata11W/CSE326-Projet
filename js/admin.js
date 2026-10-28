@@ -32,6 +32,7 @@
 
   function init() {
     const s = UI.getSession();
+    $('#today-label').textContent = 'Today is ' + UI.formatDate(UI.todayStr());
     if (s && s.role === 'admin') showDashboard(); else showLogin();
   }
 
@@ -118,13 +119,13 @@
       const actions = a.status === 'booked'
         ? `<button type="button" class="btn btn-small" data-action="completed" data-id="${a.id}">Done</button>
            <button type="button" class="btn btn-small btn-danger" data-action="cancelled" data-id="${a.id}">Cancel</button>`
-        : '—';
+        : '<span class="muted">—</span>';
       return `
         <tr>
           <td data-label="Date">${UI.formatDate(a.date)}</td>
           <td data-label="Time">${a.time}</td>
           <td data-label="Doctor">${d ? UI.escapeHTML(d.name) : '—'}</td>
-          <td data-label="Patient">${p ? UI.escapeHTML(p.name) + '<br><span class="muted small">' + UI.escapeHTML(p.phone) + '</span>' : '—'}</td>
+          <td data-label="Patient">${p ? `<span class="cell-stack">${UI.escapeHTML(p.name)}<span class="muted small">${UI.escapeHTML(p.phone)}</span></span>` : '—'}</td>
           <td data-label="Reason">${a.reason ? UI.escapeHTML(a.reason) : '—'}</td>
           <td data-label="Status"><span class="badge badge-${a.status}">${a.status}</span></td>
           <td data-label="Actions" class="actions">${actions}</td>
@@ -157,13 +158,18 @@
       const p = DB.getPatient(a.patientId) || {};
       lines.push([a.date, a.time, d.name, d.specialty, p.name, p.phone, a.status, a.reason].map(cell).join(','));
     });
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    // "\uFEFF" (byte order mark) makes Excel read accented names as UTF-8
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = 'appointments-' + UI.todayStr() + '.csv';
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    link.remove();
+    // Revoking immediately can cancel the download in some browsers
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    UI.toast('Exported ' + rows.length + ' appointment' + (rows.length === 1 ? '' : 's') + '.', 'success');
   });
 
   /* =====================  WORKING HOURS  ===================== */
@@ -192,6 +198,7 @@
     $('#slot-length').value = String(doctor.slotMinutes);
     $('#break-start').value = doctor.breakStart || '';
     $('#break-end').value = doctor.breakEnd || '';
+    UI.setError($('#break-end'), '');
   }
 
   schedDoctor.addEventListener('change', renderSchedule);
@@ -202,6 +209,7 @@
     if (!day) return;
     $('#start-' + day).disabled = !e.target.checked;
     $('#end-' + day).disabled = !e.target.checked;
+    if (!e.target.checked) UI.setError($('#end-' + day), ''); // a day off cannot be invalid
   });
 
   schedForm.addEventListener('submit', (e) => {
@@ -263,6 +271,7 @@
   // Live update when a patient books in another tab
   window.addEventListener('storage', (e) => {
     if (e.key === DB.KEY && !appSection.hidden) {
+      fillDoctorSelects(); // a doctor may have been added in the other tab
       renderStats();
       renderTable();
     }

@@ -28,6 +28,11 @@
   const statusFilter = $('#status-filter');
 
   function init() {
+    // A doctor can be preselected from the home page: book.html?doctor=doc_1
+    const wanted = new URLSearchParams(location.search).get('doctor');
+    if (wanted && DB.getDoctor(wanted)) state.doctorId = wanted;
+
+    $('#reg-dob').max = UI.todayStr();
     const session = UI.getSession();
     if (session && session.role === 'patient') state.patient = DB.getPatient(session.id);
     if (state.patient) showApp(); else showAuth();
@@ -40,15 +45,30 @@
     appSection.hidden = true;
   }
 
-  function switchTab(which) {
+  function switchTab(which, focusTab) {
     const isLogin = which === 'login';
     tabLogin.setAttribute('aria-selected', String(isLogin));
     tabRegister.setAttribute('aria-selected', String(!isLogin));
+    // Roving tabindex: only the selected tab is in the Tab order
+    tabLogin.tabIndex = isLogin ? 0 : -1;
+    tabRegister.tabIndex = isLogin ? -1 : 0;
     loginForm.hidden = !isLogin;
     registerForm.hidden = isLogin;
+    if (focusTab) (isLogin ? tabLogin : tabRegister).focus();
   }
   tabLogin.addEventListener('click', () => switchTab('login'));
   tabRegister.addEventListener('click', () => switchTab('register'));
+  // Left/Right arrow keys move between tabs (WAI-ARIA tabs pattern)
+  $('.tabs').addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    switchTab(tabLogin.getAttribute('aria-selected') === 'true' ? 'register' : 'login', true);
+  });
+  // "Create a free account" / "Log in" links under each form
+  authSection.addEventListener('click', (e) => {
+    const link = e.target.closest('[data-tab]');
+    if (link) switchTab(link.dataset.tab, true);
+  });
 
   /** Validates one register field and shows its message. */
   function validateRegisterField(input) {
@@ -147,12 +167,13 @@
     const doctors = DB.getDoctors().filter((d) =>
       (d.name + ' ' + d.specialty).toLowerCase().includes(q));
     if (!doctors.length) {
-      doctorList.innerHTML = '<p class="muted">No doctor matches your search.</p>';
+      doctorList.innerHTML = '<p class="info-box">No doctor matches your search.</p>';
       return;
     }
     doctorList.innerHTML = doctors.map((d) => `
       <label class="choice-card">
         <input type="radio" name="doctor" value="${d.id}" ${d.id === state.doctorId ? 'checked' : ''}>
+        <span class="avatar" aria-hidden="true">${UI.escapeHTML(d.name.replace('Dr. ', '').charAt(0))}</span>
         <span class="choice-body">
           <strong>${UI.escapeHTML(d.name)}</strong>
           <span class="muted">${UI.escapeHTML(d.specialty)}</span>
@@ -176,6 +197,14 @@
     renderSlots();
   });
 
+  const ICON_INFO = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>';
+  const ICON_CLOCK = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+
+  /** Grey message box with an icon; text must already be escaped. */
+  function infoBox(html) {
+    return `<p class="info-box">${ICON_INFO}<span>${html}</span></p>`;
+  }
+
   function renderSlots() {
     slotList.innerHTML = buildSlotsHTML();
     updateSummary();
@@ -184,21 +213,22 @@
   function buildSlotsHTML() {
     const doctor = state.doctorId && DB.getDoctor(state.doctorId);
     const date = dateInput.value;
-    if (!doctor) return '<p class="muted">Choose a doctor to see free time slots.</p>';
+    if (!doctor) return infoBox('Choose a doctor to see free time slots.');
     if (!date || date < dateInput.min || date > dateInput.max) {
       state.time = null;
-      return '<p class="muted">Choose a date within the next 60 days.</p>';
+      return infoBox('Choose a date within the next 60 days.');
     }
     const slots = Slots.generate(doctor, date, DB.getAppointments());
     if (!slots.length) {
       state.time = null;
-      return `<p class="muted">${UI.escapeHTML(doctor.name)} does not work on this day. Try another date.</p>`;
+      return infoBox(`${UI.escapeHTML(doctor.name)} does not work on this day. Try another date.`);
     }
     // If the chosen slot was taken in another tab, unselect it
     if (state.time && !slots.some((s) => s.time === state.time && s.available)) state.time = null;
 
     const free = slots.filter((s) => s.available).length;
-    return `<p class="muted">${free} free slot${free === 1 ? '' : 's'}</p>
+    if (!free) return infoBox('All slots are taken or already past on this day. Try another date.');
+    return `<p class="slots-meta">${ICON_CLOCK} ${free} free slot${free === 1 ? '' : 's'} on ${UI.formatDate(date)}</p>
       <div class="slot-grid">
         ${slots.map((s) => `
           <label class="slot${s.available ? '' : ' slot-taken'}">
@@ -264,7 +294,9 @@
       .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
     if (!list.length) {
-      myList.innerHTML = '<li class="muted">No appointments to show.</li>';
+      myList.innerHTML = `<li class="empty-state">${filter === 'all'
+        ? 'You have no appointments yet. Book your first one!'
+        : 'No ' + filter + ' appointments.'}</li>`;
       return;
     }
     const now = new Date();
@@ -273,7 +305,7 @@
       const future = new Date(a.date + 'T' + a.time) > now;
       const canCancel = a.status === 'booked' && future;
       return `
-        <li class="appt">
+        <li class="appt appt-${a.status}">
           <div class="appt-info">
             <strong>${UI.formatDate(a.date)} · ${a.time}</strong>
             <span class="muted">${d ? UI.escapeHTML(d.name) + ' – ' + UI.escapeHTML(d.specialty) : 'Doctor removed'}</span>
@@ -290,8 +322,9 @@
   statusFilter.addEventListener('change', renderMyAppointments);
 
   myList.addEventListener('click', (e) => {
-    const id = e.target.dataset.cancel;
-    if (!id) return;
+    const btn = e.target.closest('[data-cancel]');
+    if (!btn) return;
+    const id = btn.dataset.cancel;
     if (!confirm('Cancel this appointment?')) return;
     DB.setAppointmentStatus(id, 'cancelled');
     UI.toast('Appointment cancelled.', 'info');
@@ -301,7 +334,9 @@
 
   /** Reminds the patient of appointments in the next 24 h (once per session). */
   function checkReminders() {
-    if (sessionStorage.getItem('wcb_reminded')) return;
+    // Keyed per patient, so a second patient logging in on the same tab still gets reminded
+    const key = 'wcb_reminded_' + state.patient.id;
+    if (sessionStorage.getItem(key)) return;
     const now = Date.now();
     const in24h = now + 24 * 60 * 60 * 1000;
     DB.getAppointments()
@@ -314,12 +349,16 @@
         const d = DB.getDoctor(a.doctorId);
         UI.notify('Reminder: appointment soon', `${d ? d.name : 'Doctor'} – ${UI.formatDate(a.date)} at ${a.time}`);
       });
-    sessionStorage.setItem('wcb_reminded', '1');
+    sessionStorage.setItem(key, '1');
   }
 
   // "storage" fires when ANOTHER tab changes localStorage → live updates
   window.addEventListener('storage', (e) => {
     if (e.key === DB.KEY && state.patient) {
+      // The account may have been erased by "Reset demo data" in the dashboard
+      state.patient = DB.getPatient(state.patient.id);
+      if (!state.patient) { UI.clearSession(); location.reload(); return; }
+      if (state.doctorId && !DB.getDoctor(state.doctorId)) state.doctorId = null;
       renderDoctors();
       renderSlots();
       renderMyAppointments();

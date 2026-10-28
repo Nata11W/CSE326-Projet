@@ -4,7 +4,7 @@
 
 > Individual project · B.Tech CSE · Lovely Professional University · Windyam Natacha ZOUNGRANA
 
-**Live demo:** `https://<your-github-username>.github.io/webcarebooking/`
+**Live demo:** `https://nata11w.github.io/CSE326-Projet/` (after GitHub Pages is enabled, see below)
 
 ---
 
@@ -27,7 +27,7 @@ WebCareBooking is a two-sided platform:
 |---|---|---|
 | 1 | Semantic HTML | `header`, `nav`, `main`, `section`, `article`, `footer`, `fieldset/legend`, table with `caption`/`scope`, skip link, ARIA |
 | 2 | Forms & validation | Register, login, booking, working-hours and add-doctor forms; HTML5 attributes + custom JS rules in `js/validate.js`; live error messages |
-| 3 | CSS | Custom properties (light/dark theme), Flexbox, Grid, `:has()`, transitions, animations |
+| 3 | CSS | Custom properties (light/dark theme), Flexbox, Grid, `:has()`, `backdrop-filter`, gradients, inline SVG icons, transitions, animations |
 | 4 | JavaScript fundamentals | Modules via IIFE, arrays (`map`/`filter`/`sort`), objects, template literals, `async/await`, `try/catch` |
 | 5 | DOM & events | Dynamic rendering, event delegation, `input`/`change`/`submit`/`focusout`/`storage` events |
 | 6 | Browser APIs | `localStorage`, `sessionStorage`, Notification API, Web Crypto (`crypto.subtle`), Blob + `URL.createObjectURL`, `Intl.DateTimeFormat`, `matchMedia` |

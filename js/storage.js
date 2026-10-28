@@ -125,6 +125,10 @@ const DB = (function () {
         a.doctorId === appt.doctorId && a.date === appt.date &&
         a.time === appt.time && a.status === 'booked');
       if (clash) throw new Error('Sorry, this slot was just taken. Please choose another time.');
+      const busy = data.appointments.some((a) =>
+        a.patientId === appt.patientId && a.date === appt.date &&
+        a.time === appt.time && a.status === 'booked');
+      if (busy) throw new Error('You already have another appointment at this time.');
       const saved = Object.assign({}, appt, {
         id: uid('apt'), status: 'booked', createdAt: new Date().toISOString()
       });
@@ -143,7 +147,7 @@ const DB = (function () {
 
     /** Deletes everything and reloads the demo data. */
     reset() {
-      localStorage.removeItem(KEY);
+      try { localStorage.removeItem(KEY); } catch (err) { console.error('[DB] Could not reset data.', err); }
       read();
     }
   };

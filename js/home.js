@@ -10,7 +10,9 @@
       <span class="avatar" aria-hidden="true">${UI.escapeHTML(d.name.replace('Dr. ', '').charAt(0))}</span>
       <div>
         <h3>${UI.escapeHTML(d.name)}</h3>
-        <p class="muted">${UI.escapeHTML(d.specialty)}</p>
+        <p class="chip">${UI.escapeHTML(d.specialty)}</p>
       </div>
+      <a class="btn btn-small" href="book.html?doctor=${encodeURIComponent(d.id)}"
+         aria-label="Book with ${UI.escapeHTML(d.name)}">Book</a>
     </li>`).join('');
 })();
