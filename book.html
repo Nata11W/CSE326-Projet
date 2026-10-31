@@ -157,8 +157,35 @@
               <p class="hint"><span id="reason-count">0</span>/200 characters</p>
             </fieldset>
 
+            <fieldset>
+              <legend><span class="step-num" aria-hidden="true">4</span>Booking fee &amp; payment</legend>
+              <div class="fee-row">
+                <span>Booking fee <span class="muted small">(per appointment)</span></span>
+                <strong id="fee-amount">₹20</strong>
+              </div>
+              <div id="pay-options" class="pay-grid" role="radiogroup" aria-label="Payment method">
+                <label class="choice-card pay-option">
+                  <input type="radio" name="payment" value="upi">
+                  <span class="pay-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
+                  <span class="choice-body"><strong>UPI</strong><span class="muted">GPay, PhonePe, Paytm</span></span>
+                </label>
+                <label class="choice-card pay-option">
+                  <input type="radio" name="payment" value="card">
+                  <span class="pay-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span>
+                  <span class="choice-body"><strong>Card</strong><span class="muted">Debit or credit card</span></span>
+                </label>
+                <label class="choice-card pay-option">
+                  <input type="radio" name="payment" value="clinic">
+                  <span class="pay-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M10 13h4M12 11v4"/></svg></span>
+                  <span class="choice-body"><strong>Pay at the clinic</strong><span class="muted">Cash or card on the day</span></span>
+                </label>
+              </div>
+              <p class="hint">Online payments are refunded if you cancel. This is a demo: no money is ever taken.</p>
+            </fieldset>
+
             <p id="booking-summary" class="summary" aria-live="polite"></p>
             <button type="submit" id="confirm-btn" class="btn btn-primary btn-block btn-lg" disabled>Confirm booking</button>
+            <p id="confirm-hint" class="hint center"></p>
           </form>
         </section>
 
@@ -177,6 +204,35 @@
         </section>
       </div>
     </section>
+
+    <!-- ============ DEMO PAYMENT SCREEN ============ -->
+    <dialog id="pay-dialog" class="dialog" aria-labelledby="pay-title">
+      <form id="pay-form">
+        <p class="demo-banner">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          Demo payment – no money is taken
+        </p>
+        <h2 id="pay-title">Pay <span id="pay-amount">₹20</span> by <span id="pay-method">UPI</span></h2>
+        <dl id="pay-details" class="details-list"></dl>
+        <p class="muted small">This student project does not ask for a card number, UPI ID or PIN, and nothing is charged. A real version would hand over to a payment gateway such as Razorpay or Paytm.</p>
+        <div class="dialog-actions">
+          <button type="button" id="pay-cancel" class="btn btn-ghost">Cancel</button>
+          <button type="submit" id="pay-btn" class="btn btn-primary">Pay ₹20 (demo)</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- ============ TOKEN SLIP ============ -->
+    <dialog id="slip-dialog" class="dialog slip-dialog" aria-labelledby="slip-title">
+      <div id="slip-content"></div>
+      <div class="dialog-actions no-print">
+        <button type="button" id="slip-print" class="btn btn-ghost">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></svg>
+          Print
+        </button>
+        <button type="button" id="slip-close" class="btn btn-primary">Done</button>
+      </div>
+    </dialog>
   </main>
 
   <footer class="site-footer">
@@ -192,6 +248,7 @@
     </div>
   </footer>
 
+  <script src="js/payments.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/slots.js"></script>
   <script src="js/validate.js"></script>

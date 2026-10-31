@@ -471,6 +471,12 @@ legend { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font
 .badge-booked { background: var(--primary-soft); color: var(--primary); }
 .badge-completed { background: var(--success-soft); color: var(--success); }
 .badge-cancelled { background: var(--danger-soft); color: var(--danger); }
+/* Payment badges */
+.badge-paid { background: var(--success-soft); color: var(--success); }
+.badge-due { background: var(--warning-soft); color: var(--warning); }
+.badge-refunded, .badge-none { background: var(--surface-2); color: var(--muted); }
+.badge-paid, .badge-due, .badge-refunded, .badge-none { text-transform: none; } /* labels are already written in sentence case */
+.appt-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.3rem; color: var(--muted); }
 
 /* ---------- 9. Dashboard ---------- */
 .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
@@ -510,7 +516,88 @@ legend { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font
 .day-toggle input { width: 18px; height: 18px; min-height: 0; accent-color: var(--primary); }
 .time-pair { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.9rem; }
 
-/* ---------- 10. Toasts & footer ---------- */
+/* ---------- 10. Payments, dialogs & token slip ---------- */
+.fee-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  background: var(--surface-2); border-radius: 10px; padding: 0.75rem 1rem;
+}
+.fee-row strong { font-size: 1.2rem; }
+.pay-grid { display: grid; gap: 0.6rem; margin-block: 0.25rem; }
+.pay-option { position: relative; }
+.pay-icon {
+  display: grid; place-items: center; width: 38px; height: 38px; flex: none;
+  border-radius: 10px; background: var(--primary-soft); color: var(--primary); font-size: 1.1rem;
+}
+
+.dialog {
+  width: min(460px, calc(100% - 2rem)); max-height: calc(100% - 2rem); overflow: auto;
+  padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow-lg);
+}
+.dialog[open] { animation: pop-in 0.2s ease-out; }
+.dialog::backdrop { background: rgba(8, 20, 30, 0.55); backdrop-filter: blur(3px); }
+.dialog h2 { margin-bottom: 1rem; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.25rem; flex-wrap: wrap; }
+@keyframes pop-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+.demo-banner {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--warning-soft); color: var(--warning);
+  border: 1px dashed currentColor; border-radius: 10px;
+  padding: 0.65rem 0.85rem; font-weight: 700; font-size: 0.92rem;
+}
+
+.details-list { margin: 0 0 1rem; display: grid; gap: 0; }
+.details-list div {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: 0.5rem 0; border-bottom: 1px dashed var(--border);
+}
+.details-list dt { color: var(--muted); font-size: 0.9rem; }
+.details-list dd { margin: 0; font-weight: 600; text-align: right; }
+
+.spinner {
+  width: 1em; height: 1em; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.slip-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.slip-head h2 { margin: 0; font-size: 1.15rem; }
+.slip-head p { margin: 0; }
+.slip-token {
+  display: grid; justify-items: center; margin-bottom: 1rem; padding: 1rem;
+  border: 2px dashed var(--primary); border-radius: var(--radius); background: var(--primary-soft);
+}
+.slip-token span { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--primary); }
+.slip-token strong { font-size: 3rem; line-height: 1.1; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; }
+.slip-note { margin: 0; font-size: 0.88rem; color: var(--muted); }
+
+/* Clinic subscription & earnings */
+.billing-grid { display: grid; gap: 1rem; margin-bottom: 0.75rem; }
+.billing-tile {
+  display: grid; gap: 0.25rem; align-content: start;
+  border: 1px solid var(--border); border-radius: 12px; padding: 1rem; background: var(--bg);
+}
+.billing-tile p { margin: 0; }
+.billing-tile .btn { justify-self: start; margin-top: 0.5rem; }
+.billing-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.billing-value { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.billing-unit { font-size: 0.95rem; font-weight: 500; }
+
+/* Print only the token slip */
+@media print {
+  body { background: #fff; min-height: 0; }
+  body > :not(main), main > :not(.slip-dialog), .no-print { display: none !important; }
+  main.page { padding: 0; }
+  .slip-dialog {
+    position: static; margin: 0 auto; width: 100%; max-width: 480px; max-height: none;
+    border: 1px solid #999; box-shadow: none; animation: none;
+  }
+  .slip-dialog::backdrop { background: none; backdrop-filter: none; }
+}
+
+/* ---------- 11. Toasts & footer ---------- */
 .toast-box {
   position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 200;
   display: grid; gap: 0.5rem; pointer-events: none;
@@ -537,7 +624,7 @@ legend { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font
 .footer-links a { color: var(--muted); text-decoration: none; font-weight: 500; }
 .footer-links a:hover { color: var(--primary); }
 
-/* ---------- 11. Responsive breakpoints ---------- */
+/* ---------- 12. Responsive breakpoints ---------- */
 
 /* Tablet */
 @media (min-width: 640px) {
@@ -552,6 +639,10 @@ legend { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font
   .hours-row .error { grid-column: 2; }
   .toast-box { left: auto; width: 360px; }
   .cta { grid-template-columns: 1fr auto; padding: 2.5rem; }
+  .pay-grid { grid-template-columns: repeat(3, 1fr); }
+  .pay-option { flex-direction: column; align-items: flex-start; }
+  .pay-option input { position: absolute; top: 0.8rem; right: 0.8rem; }
+  .billing-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* Desktop */

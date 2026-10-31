@@ -99,6 +99,32 @@
         </article>
       </section>
 
+      <section class="card" aria-labelledby="sub-title">
+        <div class="card-head">
+          <h2 id="sub-title">Subscription &amp; earnings</h2>
+          <span id="sub-badge" class="badge"></span>
+        </div>
+        <div class="billing-grid">
+          <div class="billing-tile">
+            <p class="billing-label">Your plan</p>
+            <p class="billing-value"><span id="sub-plan">Clinic Plan</span> · <span id="sub-price">₹999</span><span class="muted billing-unit">/month</span></p>
+            <p class="muted small" id="sub-dates"></p>
+            <button type="button" id="renew-btn" class="btn btn-primary btn-small">Renew (demo)</button>
+          </div>
+          <div class="billing-tile">
+            <p class="billing-label">Booking-fee earnings</p>
+            <p class="billing-value" id="earn-total">₹0</p>
+            <p class="muted small" id="earn-detail"></p>
+          </div>
+          <div class="billing-tile">
+            <p class="billing-label">To collect at the clinic</p>
+            <p class="billing-value" id="due-total">₹0</p>
+            <p class="muted small" id="due-detail"></p>
+          </div>
+        </div>
+        <p class="hint">Demo only: renewing does not charge anything, and earnings are not real money.</p>
+      </section>
+
       <section class="card" aria-labelledby="appts-title">
         <div class="card-head">
           <h2 id="appts-title">Appointments</h2>
@@ -133,7 +159,7 @@
             <thead>
               <tr>
                 <th scope="col">Date</th><th scope="col">Time</th><th scope="col">Doctor</th>
-                <th scope="col">Patient</th><th scope="col">Reason</th><th scope="col">Status</th>
+                <th scope="col">Patient</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col">Payment</th>
                 <th scope="col">Actions</th>
               </tr>
             </thead>
@@ -230,6 +256,7 @@
     </div>
   </footer>
 
+  <script src="js/payments.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/slots.js"></script>
   <script src="js/validate.js"></script>

@@ -1,12 +1,13 @@
 /**
  * patient.js – Patient side (book.html):
- * login / register, choose doctor, pick slot, book, view & cancel.
+ * login / register, choose doctor, pick slot, pay the booking fee (demo),
+ * book, print the token slip, view & cancel.
  */
 (function () {
   'use strict';
 
   const $ = (sel) => document.querySelector(sel);
-  const state = { patient: null, doctorId: null, time: null };
+  const state = { patient: null, doctorId: null, time: null, payMethod: null };
 
   // ---------- DOM references ----------
   const authSection = $('#auth-section');
@@ -26,6 +27,15 @@
   const bookingForm = $('#booking-form');
   const myList = $('#my-appointments');
   const statusFilter = $('#status-filter');
+  const payOptions = $('#pay-options');
+  const confirmHint = $('#confirm-hint');
+  const payDialog = $('#pay-dialog');
+  const payForm = $('#pay-form');
+  const payBtn = $('#pay-btn');
+  const slipDialog = $('#slip-dialog');
+  const slipContent = $('#slip-content');
+
+  const FEE = Payments.formatINR(Payments.BOOKING_FEE);
 
   function init() {
     // A doctor can be preselected from the home page: book.html?doctor=doc_1
@@ -248,12 +258,28 @@
 
   function updateSummary() {
     const doctor = state.doctorId && DB.getDoctor(state.doctorId);
-    const ready = Boolean(doctor && dateInput.value && state.time);
+    const slotReady = Boolean(doctor && dateInput.value && state.time);
+    const ready = slotReady && Boolean(state.payMethod);
+    const online = state.payMethod && state.payMethod !== 'clinic';
+
     confirmBtn.disabled = !ready;
-    summary.textContent = ready
-      ? `You are booking ${doctor.name} (${doctor.specialty}) on ${UI.formatDate(dateInput.value)} at ${state.time}.`
-      : '';
+    confirmBtn.textContent = online ? `Continue to payment · ${FEE}` : 'Confirm booking';
+    confirmHint.textContent = slotReady && !state.payMethod ? 'Choose how to pay the booking fee to continue.' : '';
+
+    if (!slotReady) { summary.textContent = ''; return; }
+    const payText = !state.payMethod ? ''
+      : online ? ` Booking fee ${FEE}, paid now by ${Payments.METHODS[state.payMethod]}.`
+        : ` Booking fee ${FEE}, to pay at the clinic.`;
+    summary.textContent =
+      `You are booking ${doctor.name} (${doctor.specialty}) on ${UI.formatDate(dateInput.value)} at ${state.time}.` + payText;
   }
+
+  payOptions.addEventListener('change', (e) => {
+    if (e.target.name === 'payment') {
+      state.payMethod = e.target.value;
+      updateSummary();
+    }
+  });
 
   reason.addEventListener('input', () => {
     reasonCount.textContent = reason.value.length;
@@ -261,14 +287,21 @@
 
   bookingForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!state.doctorId || !state.time) return;
+    if (!state.doctorId || !state.time || !state.payMethod) return;
+    if (state.payMethod === 'clinic') book('clinic');
+    else openPayment();
+  });
+
+  /** Saves the booking with its payment record, then shows the token slip. */
+  function book(method) {
     try {
       const appt = DB.addAppointment({
         doctorId: state.doctorId,
         patientId: state.patient.id,
         date: dateInput.value,
         time: state.time,
-        reason: reason.value.trim()
+        reason: reason.value.trim(),
+        payment: Payments.create(method)
       });
       const doctor = DB.getDoctor(appt.doctorId);
       UI.toast(`Booked! ${doctor.name}, ${UI.formatDate(appt.date)} at ${appt.time}.`, 'success');
@@ -278,12 +311,96 @@
       reasonCount.textContent = '0';
       renderSlots();
       renderMyAppointments();
+      showSlip(appt);
+      return true;
     } catch (err) {
       console.error(err);
       UI.toast(err.message, 'error');
       renderSlots();
+      return false;
     }
+  }
+
+  /* =====================  DEMO PAYMENT  ===================== */
+
+  /** <dl> rows from [label, html] pairs; values must already be escaped. */
+  function detailsHTML(rows) {
+    return rows.map(([dt, dd]) => `<div><dt>${dt}</dt><dd>${dd}</dd></div>`).join('');
+  }
+
+  function openPayment() {
+    const doctor = DB.getDoctor(state.doctorId);
+    $('#pay-method').textContent = Payments.METHODS[state.payMethod];
+    $('#pay-amount').textContent = FEE;
+    $('#pay-details').innerHTML = detailsHTML([
+      ['Doctor', UI.escapeHTML(doctor.name)],
+      ['Date', UI.formatDate(dateInput.value)],
+      ['Time', state.time],
+      ['Booking fee', FEE]
+    ]);
+    payBtn.disabled = false;
+    payBtn.textContent = `Pay ${FEE} (demo)`;
+    payDialog.showModal();
+  }
+
+  $('#pay-cancel').addEventListener('click', () => payDialog.close());
+
+  // Do not let Escape close the dialog while the "payment" is processing
+  payDialog.addEventListener('cancel', (e) => {
+    if (payBtn.disabled) e.preventDefault();
   });
+
+  payForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    payBtn.disabled = true;
+    payBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Processing…';
+    // Pretend to wait for the bank. A real app would wait for the gateway's
+    // confirmation, checked on a server (see README).
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    payDialog.close();
+    payBtn.disabled = false;
+    book(state.payMethod);
+  });
+
+  /* =====================  TOKEN SLIP  ===================== */
+
+  function showSlip(appt) {
+    const d = DB.getDoctor(appt.doctorId);
+    const p = appt.payment;
+    const rows = [
+      ['Patient', UI.escapeHTML(state.patient.name)],
+      ['Doctor', d ? UI.escapeHTML(d.name) : 'Doctor removed'],
+      ['Specialty', d ? UI.escapeHTML(d.specialty) : '—'],
+      ['Date', UI.formatDate(appt.date)],
+      ['Time', appt.time],
+      ['Booking fee', p ? Payments.formatINR(p.amount) : '—'],
+      ['Payment', `<span class="badge badge-${Payments.badgeType(p)}">${Payments.label(p)}</span>`]
+    ];
+    if (p && p.ref) rows.push(['Reference', `<code>${UI.escapeHTML(p.ref)}</code>`]);
+    if (appt.status !== 'booked') {
+      rows.push(['Status', `<span class="badge badge-${appt.status}">${appt.status}</span>`]);
+    }
+    slipContent.innerHTML = `
+      <div class="slip-head">
+        <span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 4h5v5.5H20v5h-5.5V20h-5v-5.5H4v-5h5.5z"/></svg></span>
+        <div>
+          <h2 id="slip-title">Appointment token slip</h2>
+          <p class="muted small">WebCareBooking</p>
+        </div>
+      </div>
+      <div class="slip-token">
+        <span>Token</span>
+        <strong>${appt.token ? Slots.formatToken(appt.token) : '—'}</strong>
+      </div>
+      <dl class="details-list">${detailsHTML(rows)}</dl>
+      <p class="slip-note">${p && p.status === 'pay-at-clinic'
+        ? `Please pay ${Payments.formatINR(p.amount)} at the reception. `
+        : ''}Arrive 10 minutes early and show this token at the reception.</p>`;
+    if (!slipDialog.open) slipDialog.showModal();
+  }
+
+  $('#slip-close').addEventListener('click', () => slipDialog.close());
+  $('#slip-print').addEventListener('click', () => window.print());
 
   /* =====================  MY APPOINTMENTS  ===================== */
 
@@ -310,9 +427,14 @@
             <strong>${UI.formatDate(a.date)} · ${a.time}</strong>
             <span class="muted">${d ? UI.escapeHTML(d.name) + ' – ' + UI.escapeHTML(d.specialty) : 'Doctor removed'}</span>
             ${a.reason ? `<span class="muted small">${UI.escapeHTML(a.reason)}</span>` : ''}
+            <span class="appt-meta">
+              ${a.token ? `<span class="small">Token ${Slots.formatToken(a.token)}</span>` : ''}
+              <span class="badge badge-${Payments.badgeType(a.payment)}" title="${Payments.describe(a.payment)}">${Payments.label(a.payment)}</span>
+            </span>
           </div>
           <div class="appt-actions">
             <span class="badge badge-${a.status}">${a.status}</span>
+            <button type="button" class="btn btn-small" data-slip="${a.id}">Slip</button>
             ${canCancel ? `<button type="button" class="btn btn-small btn-danger" data-cancel="${a.id}">Cancel</button>` : ''}
           </div>
         </li>`;
@@ -322,12 +444,21 @@
   statusFilter.addEventListener('change', renderMyAppointments);
 
   myList.addEventListener('click', (e) => {
+    const slipBtn = e.target.closest('[data-slip]');
+    if (slipBtn) {
+      const appt = DB.getAppointments().find((a) => a.id === slipBtn.dataset.slip);
+      if (appt) showSlip(appt);
+      return;
+    }
     const btn = e.target.closest('[data-cancel]');
     if (!btn) return;
     const id = btn.dataset.cancel;
-    if (!confirm('Cancel this appointment?')) return;
+    const old = DB.getAppointments().find((a) => a.id === id);
+    const paid = old && old.payment && old.payment.status === 'paid';
+    const fee = paid ? Payments.formatINR(old.payment.amount) : '';
+    if (!confirm(paid ? `Cancel this appointment? Your ${fee} demo payment will be refunded.` : 'Cancel this appointment?')) return;
     DB.setAppointmentStatus(id, 'cancelled');
-    UI.toast('Appointment cancelled.', 'info');
+    UI.toast(paid ? `Appointment cancelled. ${fee} refunded (demo).` : 'Appointment cancelled.', 'info');
     renderMyAppointments();
     renderSlots();
   });

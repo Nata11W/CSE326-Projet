@@ -4,7 +4,9 @@
  * so the app works on GitHub Pages without a server.
  *
  * Data shape:
- *   { doctors: Doctor[], patients: Patient[], appointments: Appointment[] }
+ *   { doctors: Doctor[], patients: Patient[], appointments: Appointment[],
+ *     subscription: Subscription }
+ * Uses Payments (payments.js) and Slots (slots.js) for pure business rules.
  */
 const DB = (function () {
   'use strict';
@@ -40,14 +42,23 @@ const DB = (function () {
         doctor('doc_3', 'Dr. Fatima Kabore', 'Dermatology')
       ],
       patients: [],
-      appointments: []
+      appointments: [],
+      subscription: Payments.newSubscription()
     };
   }
 
   function read() {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const data = JSON.parse(raw);
+        // Data saved before subscriptions existed: start a plan now
+        if (!data.subscription) {
+          data.subscription = Payments.newSubscription();
+          write(data);
+        }
+        return data;
+      }
     } catch (err) {
       console.warn('[DB] Stored data is unreadable, loading demo data.', err);
     }
@@ -118,7 +129,10 @@ const DB = (function () {
     getAppointments() {
       return read().appointments;
     },
-    /** Adds a booking. Throws if the slot is already taken (prevents double booking). */
+    /**
+     * Adds a booking with its payment record (see Payments.create) and a token number.
+     * Throws if the slot is already taken (prevents double booking).
+     */
     addAppointment(appt) {
       const data = read();
       const clash = data.appointments.some((a) =>
@@ -130,7 +144,10 @@ const DB = (function () {
         a.time === appt.time && a.status === 'booked');
       if (busy) throw new Error('You already have another appointment at this time.');
       const saved = Object.assign({}, appt, {
-        id: uid('apt'), status: 'booked', createdAt: new Date().toISOString()
+        id: uid('apt'),
+        status: 'booked',
+        token: Slots.nextToken(data.appointments, appt.doctorId, appt.date),
+        createdAt: new Date().toISOString()
       });
       data.appointments.push(saved);
       write(data);
@@ -141,8 +158,22 @@ const DB = (function () {
       const appt = data.appointments.find((a) => a.id === id);
       if (!appt) throw new Error('Appointment not found.');
       appt.status = status;
+      // Cancelling refunds a paid fee; completing collects a "pay at clinic" fee
+      appt.payment = Payments.afterStatusChange(appt.payment, status);
       write(data);
       return appt;
+    },
+
+    /* ---------- Clinic subscription ---------- */
+    getSubscription() {
+      return read().subscription;
+    },
+    /** Demo renewal: extends the plan by one period, no money is taken. */
+    renewSubscription() {
+      const data = read();
+      data.subscription = Payments.renew(data.subscription);
+      write(data);
+      return data.subscription;
     },
 
     /** Deletes everything and reloads the demo data. */
