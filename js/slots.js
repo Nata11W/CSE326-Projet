@@ -63,7 +63,21 @@ const Slots = (function () {
     return slots;
   }
 
-  return { toMinutes, toHHMM, dayKey, generate };
+  /**
+   * Queue number for a new booking: one more than the bookings this doctor
+   * already has that day. Cancelled bookings still count, so a token number
+   * is never handed out twice.
+   */
+  function nextToken(appointments, doctorId, dateStr) {
+    return appointments.filter((a) => a.doctorId === doctorId && a.date === dateStr).length + 1;
+  }
+
+  /** 7 -> "07" */
+  function formatToken(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  return { toMinutes, toHHMM, dayKey, generate, nextToken, formatToken };
 })();
 
 // Allow Node.js to import this file for quick tests (ignored by browsers)

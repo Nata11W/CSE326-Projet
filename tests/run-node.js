@@ -3,6 +3,7 @@
  */
 global.Slots = require('../js/slots.js');
 global.Validate = require('../js/validate.js');
+global.Payments = require('../js/payments.js');
 const TEST_CASES = require('./test-cases.js');
 
 let passed = 0;

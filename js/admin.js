@@ -1,6 +1,7 @@
 /**
  * admin.js – Clinic dashboard (admin.html):
- * login, statistics, appointment management, working hours, doctors, CSV export.
+ * login, statistics, subscription & booking-fee earnings, appointment management,
+ * working hours, doctors, CSV export.
  */
 (function () {
   'use strict';
@@ -32,6 +33,7 @@
 
   function init() {
     const s = UI.getSession();
+    $('#today-label').textContent = 'Today is ' + UI.formatDate(UI.todayStr());
     if (s && s.role === 'admin') showDashboard(); else showLogin();
   }
 
@@ -73,6 +75,7 @@
   function refreshAll() {
     fillDoctorSelects();
     renderStats();
+    renderBilling();
     renderTable();
     renderSchedule();
   }
@@ -101,6 +104,37 @@
     $('#stat-cancel').textContent = all.length ? Math.round((cancelled / all.length) * 100) + '%' : '0%';
   }
 
+  /* ---------- Subscription & earnings (demo) ---------- */
+  function renderBilling() {
+    const sub = DB.getSubscription();
+    const st = Payments.subscriptionStatus(sub);
+    const until = UI.formatDate(UI.todayStr(new Date(sub.expiresAt)));
+    const badge = $('#sub-badge');
+    badge.className = 'badge ' + (st.active ? 'badge-paid' : 'badge-cancelled');
+    badge.textContent = st.active ? 'Active' : 'Expired';
+    $('#sub-plan').textContent = sub.plan;
+    $('#sub-price').textContent = Payments.formatINR(sub.price);
+    $('#sub-dates').textContent = st.active
+      ? `Active until ${until} · ${st.daysLeft} day${st.daysLeft === 1 ? '' : 's'} left`
+      : `Expired on ${until}. Renew to continue.`;
+
+    const e = Payments.earnings(DB.getAppointments());
+    $('#earn-total').textContent = Payments.formatINR(e.total);
+    $('#earn-detail').textContent = `From ${e.count} paid booking${e.count === 1 ? '' : 's'} (${Payments.formatINR(Payments.BOOKING_FEE)} each)`;
+    $('#due-total').textContent = Payments.formatINR(e.due);
+    $('#due-detail').textContent = e.dueCount
+      ? `${e.dueCount} upcoming booking${e.dueCount === 1 ? '' : 's'} paying at the reception`
+      : 'Nothing to collect';
+  }
+
+  $('#renew-btn').addEventListener('click', () => {
+    const price = Payments.formatINR(DB.getSubscription().price);
+    if (!confirm(`Renew the plan for one month (${price})?\n\nDemo payment – no money is taken.`)) return;
+    const sub = DB.renewSubscription();
+    renderBilling();
+    UI.toast('Plan renewed until ' + UI.formatDate(UI.todayStr(new Date(sub.expiresAt))) + ' (demo).', 'success');
+  });
+
   function filteredAppointments() {
     return DB.getAppointments()
       .filter((a) => filterDoctor.value === 'all' || a.doctorId === filterDoctor.value)
@@ -118,15 +152,16 @@
       const actions = a.status === 'booked'
         ? `<button type="button" class="btn btn-small" data-action="completed" data-id="${a.id}">Done</button>
            <button type="button" class="btn btn-small btn-danger" data-action="cancelled" data-id="${a.id}">Cancel</button>`
-        : '—';
+        : '<span class="muted">—</span>';
       return `
         <tr>
           <td data-label="Date">${UI.formatDate(a.date)}</td>
-          <td data-label="Time">${a.time}</td>
+          <td data-label="Time"><span class="cell-stack">${a.time}${a.token ? `<span class="muted small">Token ${Slots.formatToken(a.token)}</span>` : ''}</span></td>
           <td data-label="Doctor">${d ? UI.escapeHTML(d.name) : '—'}</td>
-          <td data-label="Patient">${p ? UI.escapeHTML(p.name) + '<br><span class="muted small">' + UI.escapeHTML(p.phone) + '</span>' : '—'}</td>
+          <td data-label="Patient">${p ? `<span class="cell-stack">${UI.escapeHTML(p.name)}<span class="muted small">${UI.escapeHTML(p.phone)}</span></span>` : '—'}</td>
           <td data-label="Reason">${a.reason ? UI.escapeHTML(a.reason) : '—'}</td>
           <td data-label="Status"><span class="badge badge-${a.status}">${a.status}</span></td>
+          <td data-label="Payment"><span class="badge badge-${Payments.badgeType(a.payment)}" title="${Payments.describe(a.payment)}">${Payments.label(a.payment)}</span></td>
           <td data-label="Actions" class="actions">${actions}</td>
         </tr>`;
     }).join('');
@@ -139,10 +174,19 @@
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
     const status = btn.dataset.action;
-    if (status === 'cancelled' && !confirm('Cancel this appointment?')) return;
+    const before = DB.getAppointments().find((a) => a.id === btn.dataset.id);
+    const pay = before && before.payment;
+    const fee = pay ? Payments.formatINR(pay.amount) : '';
+    if (status === 'cancelled' && !confirm(pay && pay.status === 'paid'
+      ? `Cancel this appointment? The patient's ${fee} will be refunded (demo).`
+      : 'Cancel this appointment?')) return;
     DB.setAppointmentStatus(btn.dataset.id, status);
-    UI.toast(status === 'completed' ? 'Marked as completed.' : 'Appointment cancelled.', 'success');
+    let msg = status === 'completed' ? 'Marked as completed.' : 'Appointment cancelled.';
+    if (status === 'completed' && pay && pay.status === 'pay-at-clinic') msg += ` ${fee} collected at the clinic.`;
+    if (status === 'cancelled' && pay && pay.status === 'paid') msg += ` ${fee} refunded (demo).`;
+    UI.toast(msg, 'success');
     renderStats();
+    renderBilling();
     renderTable();
   });
 
@@ -150,20 +194,34 @@
   $('#export-btn').addEventListener('click', () => {
     const rows = filteredAppointments();
     if (!rows.length) { UI.toast('Nothing to export.', 'info'); return; }
-    const cell = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-    const lines = [['Date', 'Time', 'Doctor', 'Specialty', 'Patient', 'Phone', 'Status', 'Reason'].map(cell).join(',')];
+    const cell = (v) => {
+      let text = String(v == null ? '' : v);
+      // Stop spreadsheet apps from running text such as "=HYPERLINK(...)" as a formula
+      if (/^[=@]|^[+-](?![\d ])/.test(text)) text = "'" + text;
+      return '"' + text.replace(/"/g, '""') + '"';
+    };
+    const header = ['Date', 'Time', 'Token', 'Doctor', 'Specialty', 'Patient', 'Phone', 'Status',
+      'Payment', 'Fee (INR)', 'Payment ref', 'Reason'];
+    const lines = [header.map(cell).join(',')];
     rows.forEach((a) => {
       const d = DB.getDoctor(a.doctorId) || {};
       const p = DB.getPatient(a.patientId) || {};
-      lines.push([a.date, a.time, d.name, d.specialty, p.name, p.phone, a.status, a.reason].map(cell).join(','));
+      const pay = a.payment || {};
+      lines.push([a.date, a.time, a.token ? Slots.formatToken(a.token) : '', d.name, d.specialty, p.name, p.phone,
+        a.status, Payments.describe(a.payment), pay.amount, pay.ref, a.reason].map(cell).join(','));
     });
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    // "\uFEFF" (byte order mark) makes Excel read accented names as UTF-8
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = 'appointments-' + UI.todayStr() + '.csv';
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    link.remove();
+    // Revoking immediately can cancel the download in some browsers
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    UI.toast('Exported ' + rows.length + ' appointment' + (rows.length === 1 ? '' : 's') + '.', 'success');
   });
 
   /* =====================  WORKING HOURS  ===================== */
@@ -192,6 +250,7 @@
     $('#slot-length').value = String(doctor.slotMinutes);
     $('#break-start').value = doctor.breakStart || '';
     $('#break-end').value = doctor.breakEnd || '';
+    UI.setError($('#break-end'), '');
   }
 
   schedDoctor.addEventListener('change', renderSchedule);
@@ -202,6 +261,7 @@
     if (!day) return;
     $('#start-' + day).disabled = !e.target.checked;
     $('#end-' + day).disabled = !e.target.checked;
+    if (!e.target.checked) UI.setError($('#end-' + day), ''); // a day off cannot be invalid
   });
 
   schedForm.addEventListener('submit', (e) => {
@@ -263,7 +323,9 @@
   // Live update when a patient books in another tab
   window.addEventListener('storage', (e) => {
     if (e.key === DB.KEY && !appSection.hidden) {
+      fillDoctorSelects(); // a doctor may have been added in the other tab
       renderStats();
+      renderBilling();
       renderTable();
     }
   });

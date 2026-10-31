@@ -30,7 +30,11 @@ const UI = (function () {
     t.className = 'toast toast-' + (type || 'info');
     t.textContent = message;
     box.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
+    // Fade out, then remove from the DOM
+    setTimeout(() => {
+      t.classList.add('leaving');
+      setTimeout(() => t.remove(), 300);
+    }, 4000);
   }
 
   /** Shows (or clears) the error under an input. Returns true when valid. */
@@ -92,7 +96,12 @@ const UI = (function () {
   /* ---------- Theme (dark / light) ---------- */
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-toggle').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(theme === 'dark'));
+    });
   }
+  /* A tiny inline script in each page's <head> already sets the theme before
+     the first paint; this syncs the toggle buttons and handles clicks. */
   function initTheme() {
     let saved = null;
     try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* storage blocked */ }
@@ -112,16 +121,31 @@ const UI = (function () {
     const toggle = document.querySelector('.nav-toggle');
     const menu = document.getElementById('nav-menu');
     if (!toggle || !menu) return;
+    const setOpen = (open) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      menu.classList.toggle('open', open);
+    };
     toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') === 'true';
-      toggle.setAttribute('aria-expanded', String(!open));
-      menu.classList.toggle('open', !open);
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+    // Close the menu on Escape, on a click outside it, or after choosing a link
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.classList.contains('open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) setOpen(false);
+    });
+    menu.addEventListener('click', (e) => {
+      if (e.target.closest('a')) setOpen(false);
     });
   }
 
-  // Theme is applied immediately to avoid a white flash
+  // Scripts are loaded at the end of <body>, so the DOM is ready here
   initTheme();
-  document.addEventListener('DOMContentLoaded', initNav);
+  initNav();
 
   return {
     escapeHTML, toast, setError,
