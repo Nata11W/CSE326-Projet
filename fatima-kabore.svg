@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="t">
+<title id="t">Illustrated portrait of Dr. Fatima Kabore</title>
+<rect width="400" height="400" fill="#ede4ff"/>
+<circle cx="330" cy="70" r="120" fill="#ffffff" opacity=".35"/>
+
+<path d="M36 400 C44 322 108 290 200 290 C292 290 356 322 364 400 Z" fill="#ffffff"/>
+<path d="M36 400 C44 322 108 290 200 290 C292 290 356 322 364 400" fill="none" stroke="#d3dae7" stroke-width="3"/>
+<path d="M162 294 L200 350 L238 294 Z" fill="#6d4bd6"/>
+<path d="M172 232 L172 300 Q200 320 228 300 L228 232 Z" fill="#52301c"/>
+<path d="M124 186 C118 106 160 80 200 80 C240 80 282 106 276 186 C274 238 264 282 248 304 Q200 322 152 304 C136 282 126 238 124 186 Z" fill="#3e5ba8"/>
+<path d="M162 294 L200 350 L180 400 M238 294 L200 350 L220 400" fill="none" stroke="#d3dae7" stroke-width="3"/>
+<path d="M170 300 C150 338 150 362 176 372" fill="none" stroke="#33415f" stroke-width="6" stroke-linecap="round"/>
+<path d="M230 300 C252 340 250 374 222 382 C208 386 198 378 198 368" fill="none" stroke="#33415f" stroke-width="6" stroke-linecap="round"/>
+<circle cx="196" cy="364" r="11" fill="#a8b4ca" stroke="#33415f" stroke-width="4"/>
+<rect x="250" y="330" width="56" height="16" rx="4" fill="#6d4bd6" opacity=".9"/>
+
+<ellipse cx="200" cy="180" rx="60" ry="70" fill="#6e4027"/>
+<path d="M140 166 C146 122 176 108 200 108 C224 108 254 122 260 166 C248 142 226 132 200 132 C174 132 152 142 140 166 Z" fill="#3e5ba8"/><path d="M146 150 C160 120 182 112 200 112" fill="none" stroke="#5b78c4" stroke-width="4" stroke-linecap="round"/><path d="M168 172 Q178 166 188 171 M212 171 Q222 166 232 172" fill="none" stroke="#2a1a12" stroke-width="4" stroke-linecap="round"/>
+<ellipse cx="178" cy="188" rx="5" ry="6.5" fill="#241a16"/>
+<ellipse cx="222" cy="188" rx="5" ry="6.5" fill="#241a16"/>
+<path d="M199 194 Q194 210 203 212" fill="none" stroke="#52301c" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M184 224 Q200 236 216 224" fill="none" stroke="#6b2f25" stroke-width="4" stroke-linecap="round"/>
+<ellipse cx="166" cy="212" rx="9" ry="5" fill="#e07a6a" opacity=".18"/>
+<ellipse cx="234" cy="212" rx="9" ry="5" fill="#e07a6a" opacity=".18"/>
+
+</svg>
