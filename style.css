@@ -1,27 +1,40 @@
 /* =========================================================
    WebCareBooking – main stylesheet
-   Visual idea: a clinic's paper world – ballpoint-ink blue on
-   cool white paper, sage for "free", red only for emergencies,
-   and the OPD token slip as the signature element.
+   Visual idea (inspired by the CURSUS BF guide): a deep navy
+   header and hero with a warm gold accent, live figures, a
+   search bar and filterable listings; green stays for "call"
+   and "free"; red only for emergencies. The OPD token slip
+   remains the signature element of the booking flow.
    Mobile-first: base styles target phones; media queries at
    the bottom add layout for tablets (≥640px) and desktops (≥960px).
    ========================================================= */
 
 /* ---------- 1. Design tokens ---------- */
 :root {
-  --paper: #f5f7fb;
+  --paper: #f6f7fb;
   --surface: #ffffff;
-  --surface-2: #eef2f8;
-  --ink: #17233f;
-  --muted: #56627a;
-  --line: #d9e0ec;
-  --blue: #2449d8;
-  --blue-hover: #1a37ae;
+  --surface-2: #eef1f7;
+  --ink: #111c33;
+  --muted: #57627a;
+  --line: #dde2ec;
+  --blue: #1c3570;          /* navy ink: links, numbers, selected states */
+  --blue-hover: #142755;
   --on-blue: #ffffff;
-  --blue-soft: #e3e9fd;
+  --blue-soft: #e7ecf8;
+  --gold: #e3a83a;          /* accent: main buttons, highlights */
+  --gold-hover: #efbd5c;
+  --on-gold: #1d1404;
+  --gold-soft: #fbf1dc;
+  --gold-ink: #8a5a00;      /* gold used as text on light backgrounds */
+  --navy: #0c1730;          /* header, hero, footer */
+  --navy-2: #15264b;
+  --on-navy: #eef2fb;
+  --on-navy-muted: #a9b4cc;
+  --navy-line: rgba(255, 255, 255, 0.12);
   --sage: #1f7a55;
   --sage-hover: #17603f;
   --sage-soft: #ddf2e6;
+  --whatsapp: #1fa855;
   --red: #c4352b;
   --red-soft: #fbe6e3;
   --slip: #fffefa;
@@ -35,28 +48,34 @@
   --r-panel: 16px;
   --r-photo: 20px;
   --gutter: 1rem;
+  --shadow: 0 1px 2px rgba(12, 23, 48, 0.06), 0 8px 24px rgba(12, 23, 48, 0.06);
   color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --paper: #0e1424;
-  --surface: #151d31;
-  --surface-2: #1c263e;
-  --ink: #e6ecf7;
-  --muted: #a0abc2;
-  --line: #2a3652;
-  --blue: #8aa4ff;
-  --blue-hover: #aebfff;
-  --on-blue: #0b1330;
-  --blue-soft: #1f2c55;
+  --paper: #0a1225;
+  --surface: #111c35;
+  --surface-2: #182549;
+  --ink: #e8edf7;
+  --muted: #a3aec6;
+  --line: #25345a;
+  --blue: #a9bdff;
+  --blue-hover: #c8d5ff;
+  --on-blue: #0a1225;
+  --blue-soft: #1c2a55;
+  --gold-soft: #33280f;
+  --gold-ink: #f1c46b;
+  --navy: #060d1d;
+  --navy-2: #0f1a36;
   --sage: #6fd3a0;
   --sage-hover: #93e2b9;
   --sage-soft: #15352a;
   --red: #ff8f84;
   --red-soft: #3a1e1d;
-  --slip: #1a2338;
+  --slip: #16223f;
   --amber: #f0c060;
   --amber-soft: #352a12;
+  --shadow: none;
   color-scheme: dark;
 }
 
@@ -123,55 +142,67 @@ strong { font-weight: 700; }
 
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 
-/* ---------- 3. Emergency strip, header & navigation ---------- */
+/* ---------- 3. Emergency strip, navbar ---------- */
 .emergency { background: var(--red-soft); color: var(--red); font-size: 0.9rem; }
 .emergency p { margin: 0 auto; padding-block: 0.45rem; }
 .emergency a { color: inherit; font-weight: 700; }
 
 .site-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  background: var(--navy); color: var(--on-navy);
+  border-bottom: 1px solid var(--navy-line);
   position: sticky; top: 0; z-index: 50;
 }
 .header-inner {
-  display: flex; align-items: center; justify-content: space-between;
-  min-height: 64px; position: relative;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  min-height: 68px; position: relative;
 }
-.logo {
-  display: flex; align-items: center; gap: 0.6rem;
-  font-family: var(--display); font-weight: 750; font-size: 1.2rem; letter-spacing: -0.02em;
-  color: var(--ink); text-decoration: none;
-}
-/* A small calendar page with a medical cross */
+.logo { display: flex; align-items: center; gap: 0.7rem; color: var(--on-navy); text-decoration: none; }
+.logo:hover { color: var(--on-navy); }
+/* Brand mark: a gold tile with a medical cross */
 .logo-mark {
-  width: 30px; height: 30px; border-radius: 8px; position: relative;
+  width: 38px; height: 38px; border-radius: 11px; flex: none;
   background:
-    linear-gradient(var(--on-blue), var(--on-blue)) center 60% / 12px 4px no-repeat,
-    linear-gradient(var(--on-blue), var(--on-blue)) center 60% / 4px 12px no-repeat,
-    var(--blue);
-  box-shadow: inset 0 7px 0 var(--blue-hover);
+    linear-gradient(var(--navy), var(--navy)) center / 16px 5px no-repeat,
+    linear-gradient(var(--navy), var(--navy)) center / 5px 16px no-repeat,
+    var(--gold);
 }
+.logo-text { display: grid; line-height: 1.1; }
+.logo-name { font-family: var(--display); font-weight: 750; font-size: 1.15rem; letter-spacing: -0.02em; }
+.logo-sub { font-size: 0.78rem; color: var(--on-navy-muted); }
+
+/* Hamburger (three bars) */
 .nav-toggle {
-  font: inherit; background: none; border: 1px solid var(--line);
-  color: var(--ink); padding: 0.4rem 0.85rem; border-radius: var(--r-control); cursor: pointer;
+  display: grid; gap: 5px; place-content: center; width: 44px; height: 44px;
+  background: transparent; border: 1px solid var(--navy-line); border-radius: var(--r-control); cursor: pointer;
 }
+.nav-toggle span { display: block; width: 20px; height: 2px; background: var(--on-navy); border-radius: 2px; transition: transform 0.2s, opacity 0.2s; }
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
 .nav-menu {
   list-style: none; margin: 0; padding: 0.5rem 1rem 1rem;
   display: none; flex-direction: column; gap: 0.15rem;
   position: absolute; top: 100%; left: calc(-1 * var(--gutter)); right: calc(-1 * var(--gutter));
-  background: var(--surface); border-bottom: 1px solid var(--line);
+  background: var(--navy); border-bottom: 1px solid var(--navy-line);
 }
 .nav-menu.open { display: flex; }
-.nav-menu a {
-  display: block; padding: 0.6rem 0.75rem; border-radius: var(--r-control);
-  text-decoration: none; color: var(--ink);
+.nav-menu a.nav-link {
+  display: block; padding: 0.6rem 0.8rem; border-radius: var(--r-control);
+  text-decoration: none; color: var(--on-navy-muted); font-weight: 700;
 }
-.nav-menu a:hover { background: var(--surface-2); color: var(--ink); }
-.nav-menu a[aria-current="page"] { color: var(--blue); font-weight: 700; }
+.nav-menu a.nav-link:hover { background: var(--navy-2); color: var(--on-navy); }
+.nav-menu a.nav-link[aria-current="page"] { color: var(--gold); background: var(--navy-2); }
+.nav-actions { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.8rem 0; }
+.btn-whatsapp {
+  display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none; font-weight: 700;
+  background: var(--whatsapp); color: #fff; padding: 0.55rem 1rem; border-radius: 999px; font-size: 0.95rem;
+}
+.btn-whatsapp:hover { color: #fff; filter: brightness(1.08); }
+.btn-whatsapp svg { width: 16px; height: 16px; }
 .theme-toggle {
-  font-size: 1.15rem; background: none; border: 1px solid var(--line);
-  color: var(--ink); width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-  margin: 0.25rem 0.75rem;
+  font-size: 1.1rem; background: transparent; border: 1px solid var(--navy-line);
+  color: var(--on-navy); width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
 }
 
 /* ---------- 4. Buttons & links ---------- */
@@ -184,9 +215,11 @@ strong { font-weight: 700; }
 .btn:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
 .btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn-primary { background: var(--blue); border-color: var(--blue); color: var(--on-blue); }
-.btn-primary:hover:not(:disabled) { background: var(--blue-hover); border-color: var(--blue-hover); color: var(--on-blue); }
+.btn-primary, .btn-gold { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+.btn-primary:hover:not(:disabled), .btn-gold:hover:not(:disabled) { background: var(--gold-hover); border-color: var(--gold-hover); color: var(--on-gold); }
 .btn-ghost { background: transparent; }
+.btn-outline { background: transparent; border-color: var(--gold); color: var(--gold-ink); }
+.btn-outline:hover:not(:disabled) { background: var(--gold-soft); color: var(--gold-ink); }
 .btn-call { background: var(--sage); border-color: var(--sage); color: #fff; }
 [data-theme="dark"] .btn-call { color: #08261a; }
 .btn-call:hover:not(:disabled) { background: var(--sage-hover); border-color: var(--sage-hover); color: #fff; }
@@ -196,6 +229,12 @@ strong { font-weight: 700; }
 .btn-small { padding: 0.4rem 0.75rem; font-size: 0.9rem; }
 .btn-lg { padding: 0.9rem 1.4rem; font-size: 1.05rem; }
 .btn-block { width: 100%; }
+
+/* Buttons placed on the navy hero */
+.on-navy .btn-outline { color: var(--gold); }
+.on-navy .btn-outline:hover { background: rgba(227, 168, 58, 0.12); color: var(--gold); }
+.on-navy .btn-ghost { color: var(--on-navy); border-color: var(--navy-line); }
+.on-navy .btn-ghost:hover { background: var(--navy-2); color: var(--on-navy); }
 
 .link-btn {
   font: inherit; font-size: 0.9rem; font-weight: 700; background: none; border: 0; padding: 0.2rem 0;
@@ -221,69 +260,194 @@ strong { font-weight: 700; }
 .photo-md.photo-initials { font-size: 2.2rem; }
 .photo-lg.photo-initials { font-size: clamp(2.5rem, 8vw, 4rem); }
 
-/* ---------- 6. Home: hero & next free appointments ---------- */
-.hero { padding-block: 2.5rem 3rem; border-bottom: 1px solid var(--line); background: var(--surface); }
-.hero-inner { display: grid; gap: 2rem; align-items: center; }
-.hero-text h1 { max-width: 14ch; }
-.lead { font-size: 1.15rem; color: var(--muted); max-width: 52ch; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+/* ---------- 6. Section headers (shared) ---------- */
+.section-header { max-width: 64ch; margin-bottom: 1.75rem; }
+.section-header h1, .section-header h2 { margin-bottom: 0.35rem; }
+.section-header h1 span, .section-header h2 span { color: var(--gold-ink); }
+.section-header p { color: var(--muted); margin: 0; }
+.page-title span { color: var(--gold-ink); }
 
-.next-free {
-  background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-panel);
-  padding: 1.25rem;
+/* ---------- 7. Home: hero ---------- */
+.hero {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, rgba(227, 168, 58, 0.18), transparent 60%),
+    radial-gradient(40rem 26rem at -10% 110%, rgba(31, 168, 85, 0.12), transparent 60%),
+    var(--navy);
+  color: var(--on-navy);
+  padding-block: 2.5rem 3rem;
 }
-.next-free h2 { font-size: 1.2rem; margin-bottom: 0.75rem; }
-.next-list { list-style: none; margin: 0 0 0.75rem; padding: 0; }
-.next-row {
-  display: flex; align-items: center; gap: 0.85rem;
-  padding: 0.7rem 0; border-bottom: 1px dashed var(--line);
+.hero-grid { display: grid; gap: 2.25rem; align-items: center; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  border: 1px solid var(--navy-line); background: rgba(255, 255, 255, 0.04);
+  color: var(--on-navy-muted); font-size: 0.88rem; border-radius: 999px; padding: 0.35rem 0.85rem; margin-bottom: 1.1rem;
 }
-.next-row:first-child { padding-top: 0; }
-.next-who { display: grid; flex: 1; min-width: 0; line-height: 1.3; }
-.time-chip {
-  display: grid; text-align: center; text-decoration: none; flex: none;
-  background: var(--sage-soft); color: var(--sage);
-  border: 1.5px solid transparent; border-radius: 12px; padding: 0.35rem 0.75rem; line-height: 1.15;
-  font-size: 0.8rem; min-width: 92px;
-}
-.time-chip strong { font-family: var(--display); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
-.time-chip:hover { border-color: var(--sage); color: var(--sage); }
+.pulse-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--whatsapp); box-shadow: 0 0 0 0 rgba(31, 168, 85, 0.6); animation: pulse 2s infinite; }
+@keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(31, 168, 85, 0); } 100% { box-shadow: 0 0 0 0 rgba(31, 168, 85, 0); } }
+.hero-title { color: #fff; max-width: 13ch; margin-bottom: 0.9rem; }
+.gold-text { color: var(--gold); }
+.outline-text { color: transparent; -webkit-text-stroke: 1.5px var(--on-navy); }
+.hero-description { color: var(--on-navy-muted); font-size: 1.12rem; max-width: 50ch; }
+.hero-stat-row { display: flex; flex-wrap: wrap; gap: 1.5rem 2.25rem; margin: 1.5rem 0; }
+.hero-stat { display: grid; line-height: 1.15; }
+.stat-value { font-family: var(--display); font-size: 2rem; font-weight: 800; color: var(--gold); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.stat-label { color: var(--on-navy-muted); font-size: 0.9rem; }
+.hero-cta-group { display: flex; flex-wrap: wrap; gap: 0.65rem; }
 
-/* ---------- 7. Home: doctors, clinics, steps ---------- */
-.doctor-grid {
-  list-style: none; padding: 0; margin: 0;
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 1rem;
+.hero-search {
+  display: flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; max-width: 560px;
+  background: var(--surface); border-radius: 14px; padding: 0.35rem 0.35rem 0.35rem 0.9rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
-.doctor-card { display: flex; flex-direction: column; }
-.doctor-figure { margin: 0 0 0.85rem; }
-.doctor-info h3 { margin-bottom: 0.15rem; }
-.doctor-specialty { color: var(--blue); font-weight: 700; margin-bottom: 0.15rem; }
-.doctor-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
-.doctor-info h3 { overflow-wrap: anywhere; }
+.hero-search svg { flex: none; color: var(--muted); }
+.hero-search input { border: 0; padding: 0.55rem 0.2rem; background: transparent; min-width: 0; flex: 1; }
+.hero-search input:focus { outline: none; }
+.hero-search:focus-within { outline: 3px solid var(--gold); outline-offset: 2px; }
+.search-btn {
+  font: inherit; font-weight: 700; border: 0; cursor: pointer; flex: none;
+  background: var(--gold); color: var(--on-gold); border-radius: 10px; padding: 0.65rem 1.1rem;
+}
+.search-btn:hover { background: var(--gold-hover); }
 
-.clinic-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
-.clinic-card {
+/* Featured "next available" card on the right of the hero */
+.match-card {
+  background: var(--surface); color: var(--ink); border-radius: 20px; padding: 1.35rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); position: relative;
+}
+.match-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.9rem; }
+.match-card-header h2 { font-size: 1rem; margin: 0; color: var(--muted); font-family: var(--body); font-weight: 700; letter-spacing: 0; }
+.match-time { text-align: right; line-height: 1.05; }
+.match-time strong { display: block; font-family: var(--display); font-size: 2rem; font-weight: 800; color: var(--blue); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.match-time span { font-size: 0.85rem; color: var(--muted); }
+.match-doctor { display: flex; align-items: center; gap: 0.85rem; }
+.match-doctor .photo-sm { width: 64px; height: 64px; border-radius: 16px; }
+.match-name { font-family: var(--display); font-size: 1.25rem; font-weight: 750; margin: 0; line-height: 1.15; }
+.match-meta { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.92rem; }
+.match-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.9rem 0; }
+.badge-soft { display: inline-block; background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.82rem; font-weight: 700; }
+.badge-gold { background: var(--gold-soft); color: var(--gold-ink); }
+.badge-green { background: var(--sage-soft); color: var(--sage); }
+.match-divider { height: 1px; background: var(--line); margin: 0.9rem 0; }
+.match-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+.match-stat-item { background: var(--surface-2); border-radius: 12px; padding: 0.6rem 0.75rem; }
+.match-stat-item .stat-val { font-weight: 700; display: block; }
+.match-stat-item .stat-lbl { font-size: 0.8rem; color: var(--muted); }
+.match-others { list-style: none; margin: 0.9rem 0 0; padding: 0; display: grid; gap: 0.35rem; }
+.match-others a {
+  display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: var(--ink);
+  padding: 0.35rem 0.4rem; border-radius: 10px;
+}
+.match-others a:hover { background: var(--surface-2); color: var(--ink); }
+.match-others .who { flex: 1; min-width: 0; line-height: 1.2; font-size: 0.92rem; }
+.match-others .when { font-weight: 700; color: var(--sage); font-variant-numeric: tabular-nums; font-size: 0.9rem; white-space: nowrap; }
+
+/* ---------- 7b. Home: specialties, doctor listing, clinics ---------- */
+.categories-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
+.category-card {
+  position: relative; display: grid; gap: 0.3rem; text-decoration: none; color: var(--ink);
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-panel);
-  padding: 1.25rem; display: grid; gap: 1.25rem;
+  padding: 1.1rem; box-shadow: var(--shadow); text-align: left; font: inherit; cursor: pointer;
 }
+.category-card:hover { border-color: var(--gold); color: var(--ink); }
+.category-card[aria-pressed="true"] { border-color: var(--gold); background: var(--gold-soft); }
+.category-icon { width: 2.5rem; height: 2.5rem; border-radius: 12px; display: grid; place-items: center; background: var(--blue-soft); color: var(--blue); }
+.category-card h3 { margin: 0.35rem 0 0; font-size: 1.05rem; }
+.category-count { font-size: 0.85rem; color: var(--muted); }
+.category-arrow { position: absolute; top: 0.9rem; right: 1rem; color: var(--gold-ink); font-weight: 700; }
+
+/* Specialties and doctors belong together: no double gap between them */
+#doctors { padding-top: 0; }
+
+.search-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1.25rem; }
+.search-row .hero-search { margin: 0; flex: 1 1 280px; box-shadow: none; border: 1.5px solid var(--line); }
+.sort-box { display: flex; align-items: center; gap: 0.5rem; }
+.sort-box label { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
+.sort-box select { width: auto; }
+
+.listings-layout { display: grid; gap: 1.25rem; align-items: start; }
+.filter-mobile-toggle {
+  display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center;
+  font: inherit; font-weight: 700; background: var(--surface); color: var(--ink);
+  border: 1.5px solid var(--line); border-radius: var(--r-control); padding: 0.65rem; cursor: pointer;
+}
+.filter-panel {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-panel);
+  padding: 1.1rem; margin-top: 0.75rem; box-shadow: var(--shadow);
+}
+.filter-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.filter-panel-header h3 { font-size: 1.1rem; margin: 0; }
+.btn-reset-filters { font: inherit; font-size: 0.88rem; font-weight: 700; background: none; border: 0; color: var(--gold-ink); cursor: pointer; }
+.filter-group { padding: 0.75rem 0; border-top: 1px solid var(--line); }
+.filter-group label { display: block; margin-bottom: 0.35rem; }
+.range-display { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.3rem; }
+.range-display strong { color: var(--gold-ink); }
+input[type="range"] { padding: 0; border: 0; accent-color: var(--gold); background: transparent; }
+.check-row { display: flex; gap: 0.55rem; align-items: center; font-weight: 400; }
+.check-row input { width: auto; accent-color: var(--gold); }
+
+.results-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.results-count { margin: 0; color: var(--muted); }
+.results-count strong { color: var(--ink); }
+
+.cards-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.doc-card {
+  display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-panel); overflow: hidden; box-shadow: var(--shadow);
+}
+.doc-card-photo { position: relative; }
+.doc-card-photo .photo-lg { border-radius: 0; }
+.doc-card-tag {
+  position: absolute; left: 0.6rem; top: 0.6rem; background: var(--navy); color: var(--gold);
+  border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.78rem; font-weight: 700;
+}
+.doc-card-body { padding: 0.85rem 0.9rem 1rem; display: grid; gap: 0.3rem; flex: 1; align-content: start; }
+.doc-card-body h3 { margin: 0; font-size: 1.05rem; overflow-wrap: anywhere; }
+.doc-card-body .muted { margin: 0; }
+.doc-card-badges { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.25rem; }
+.doc-card-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; padding: 0 0.9rem 1rem; }
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 2rem 1rem; border: 1.5px dashed var(--line); border-radius: var(--r-panel); color: var(--muted); }
+
+/* Clinic contact cards (like the CURSUS BF contact page) */
+.contact-cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+.contact-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-panel);
+  padding: 1.35rem; display: grid; gap: 0.6rem; justify-items: center; text-align: center; box-shadow: var(--shadow);
+}
+.clinic-avatar {
+  width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center;
+  background: var(--navy); color: var(--gold); font-family: var(--display); font-weight: 800; font-size: 1.5rem;
+}
+.contact-card h3 { margin: 0; }
+.contact-card address { font-style: normal; color: var(--muted); line-height: 1.45; }
+.phone-number { font-weight: 700; font-variant-numeric: tabular-nums; }
+.team-avatars { display: flex; justify-content: center; gap: 0.35rem; flex-wrap: wrap; }
+.team-avatars button { background: none; border: 0; padding: 0; cursor: pointer; border-radius: 50%; }
+.team-avatars button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+.info-bloc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-panel); padding: 1.25rem; margin-top: 1.25rem; }
+.info-bloc h3 { margin-bottom: 0.75rem; }
+.info-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.85rem; }
+.info-list li { display: grid; grid-template-columns: 2.25rem 1fr; gap: 0.75rem; align-items: start; }
+.info-bullet { width: 2.25rem; height: 2.25rem; border-radius: 10px; background: var(--gold-soft); color: var(--gold-ink); display: grid; place-items: center; font-weight: 800; }
+.info-text { display: grid; line-height: 1.4; }
+.info-text span { color: var(--muted); }
+
+/* Kept for the clinic block used in profiles, slips and the booking page */
 .clinic-block { display: grid; gap: 0.5rem; justify-items: start; }
 .clinic-name { margin: 0; }
 .clinic-block address { font-style: normal; line-height: 1.5; }
-.clinic-team > p { margin-bottom: 0.4rem; }
-.team-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
-.team-member {
-  display: flex; align-items: center; gap: 0.7rem; text-align: left; width: 100%;
-  font: inherit; color: inherit; line-height: 1.25; background: none; border: 0;
-  padding: 0.35rem; margin-left: -0.35rem; border-radius: var(--r-control); cursor: pointer;
-}
-.team-member:hover { background: var(--surface-2); }
 
-.steps { list-style: none; counter-reset: step; padding: 0; margin: 1.25rem 0 0; display: grid; gap: 1.25rem; }
-.steps li { counter-increment: step; position: relative; padding-left: 3.25rem; max-width: 60ch; min-height: 2.4rem; }
+.steps { list-style: none; counter-reset: step; padding: 0; margin: 1.25rem 0 0; display: grid; gap: 1rem; }
+.steps li {
+  counter-increment: step; position: relative; padding: 1rem 1rem 1rem 4rem; min-height: 2.4rem;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-panel);
+}
 .steps li::before {
   content: counter(step);
-  position: absolute; left: 0; top: -0.2rem;
-  font-family: var(--display); font-weight: 750; font-size: 2.1rem; line-height: 1; color: var(--blue);
+  position: absolute; left: 1rem; top: 0.9rem; width: 2.2rem; height: 2.2rem; border-radius: 10px;
+  display: grid; place-items: center; background: var(--navy); color: var(--gold);
+  font-family: var(--display); font-weight: 800; font-size: 1.1rem; line-height: 1;
 }
 
 /* ---------- 8. Panels & layout ---------- */
@@ -522,8 +686,17 @@ legend { font-family: var(--display); font-weight: 700; font-size: 1.1rem; margi
 .toast-error { border-left: 5px solid var(--red); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-.site-footer { border-top: 1px solid var(--line); background: var(--surface); padding-block: 1.5rem; color: var(--muted); font-size: 0.92rem; }
-.footer-inner p { margin: 0.2rem 0; max-width: 80ch; }
+.site-footer { background: var(--navy); color: var(--on-navy-muted); padding-block: 2rem; font-size: 0.92rem; margin-top: 2rem; }
+.footer-inner { display: grid; gap: 0.75rem; }
+.footer-inner p { margin: 0; max-width: 80ch; }
+.footer-brand { display: flex; align-items: center; gap: 0.6rem; font-family: var(--display); font-weight: 750; font-size: 1.15rem; color: var(--on-navy); }
+.footer-brand .logo-mark { width: 30px; height: 30px; border-radius: 9px; background:
+    linear-gradient(var(--navy), var(--navy)) center / 12px 4px no-repeat,
+    linear-gradient(var(--navy), var(--navy)) center / 4px 12px no-repeat, var(--gold); }
+.footer-links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; }
+.site-footer a { color: var(--gold); }
+.site-footer .footer-links a { color: var(--on-navy); text-decoration: none; }
+.site-footer .footer-links a:hover { color: var(--gold); text-decoration: underline; }
 
 /* ---------- 13b. Payments (demo) ---------- */
 .notice { background: var(--amber-soft); color: var(--amber); border-radius: var(--r-control); padding: 0.7rem 0.9rem; font-weight: 700; margin: 0.5rem 0; }
@@ -616,7 +789,9 @@ legend { font-family: var(--display); font-weight: 700; font-size: 1.1rem; margi
   .filters { grid-template-columns: repeat(3, 1fr) auto; }
   .hours-row { grid-template-columns: 140px 1fr; align-items: center; }
   .hours-row .error { grid-column: 2; }
-  .clinic-card { grid-template-columns: 1.1fr 1fr; align-items: start; }
+  .categories-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .contact-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
   .photo-field { grid-template-columns: 120px 1fr; }
   .profile { grid-template-columns: 240px 1fr; }
   .profile-photo { padding: 1.5rem 0 1.5rem 1.5rem; }
@@ -628,12 +803,18 @@ legend { font-family: var(--display); font-weight: 700; font-size: 1.1rem; margi
 @media (min-width: 960px) {
   .nav-toggle { display: none; }
   .nav-menu {
-    display: flex; flex-direction: row; align-items: center; position: static;
+    display: flex; flex-direction: row; align-items: center; gap: 0.25rem; position: static;
     padding: 0; background: none; border: 0;
   }
-  .theme-toggle { margin: 0 0 0 0.5rem; }
-  .hero { padding-block: 4rem 4.5rem; }
-  .hero-inner { grid-template-columns: 1.15fr 1fr; gap: 4rem; }
+  .nav-actions { padding: 0 0 0 0.75rem; }
+  .hero { padding-block: 4.5rem 5rem; }
+  .hero-grid { grid-template-columns: 1.15fr 0.85fr; gap: 3.5rem; }
+  .listings-layout { grid-template-columns: 270px 1fr; }
+  .filter-mobile-toggle { display: none; }
+  .filter-panel { margin-top: 0; position: sticky; top: 84px; }
+  .filter-panel[hidden] { display: block !important; }
+  .categories-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .contact-cards { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
   .section { padding-block: 4rem; }
   .layout-2col { grid-template-columns: 1.15fr 1fr; }
   .auth-layout { grid-template-columns: minmax(0, 580px) minmax(0, 360px); gap: 4rem; justify-content: center; }

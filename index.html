@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="WebCareBooking – book a doctor online 24/7, or call the clinic directly.">
+  <meta name="description" content="WebCareBooking – find a doctor, see real free times and book online 24/7, or call the clinic directly.">
   <title>WebCareBooking – Book a doctor near you</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,75 +17,205 @@
     <p class="container">Medical emergency? Don't book online. Call <a href="tel:112">112</a>, or <a href="tel:108">108</a> for an ambulance.</p>
   </aside>
 
+  <!-- ══ NAVBAR ══ -->
   <header class="site-header">
     <div class="container header-inner">
-      <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span>WebCareBooking</a>
+      <a class="logo" href="index.html">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="logo-text"><span class="logo-name">WebCareBooking</span><span class="logo-sub">Doctor appointments, 24/7</span></span>
+      </a>
       <nav aria-label="Main navigation">
-        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu">Menu</button>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Open the menu"><span></span><span></span><span></span></button>
         <ul id="nav-menu" class="nav-menu">
-          <li><a href="index.html" aria-current="page">Home</a></li>
-          <li><a href="index.html#clinics">Call a clinic</a></li>
-          <li><a href="book.html">Book appointment</a></li>
-          <li><a href="admin.html">Clinic dashboard</a></li>
-          <li><button class="theme-toggle" type="button" aria-label="Switch between dark and light mode"><span aria-hidden="true">◐</span></button></li>
+          <li><a class="nav-link" href="index.html" aria-current="page">Home</a></li>
+          <li><a class="nav-link" href="index.html#doctors">Doctors</a></li>
+          <li><a class="nav-link" href="book.html">Book appointment</a></li>
+          <li><a class="nav-link" href="admin.html">Clinic dashboard</a></li>
+          <li class="nav-actions">
+            <a class="btn-whatsapp" href="index.html#clinics">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+              Call a clinic
+            </a>
+            <button class="theme-toggle" type="button" aria-label="Switch between dark and light mode"><span aria-hidden="true">◐</span></button>
+          </li>
         </ul>
       </nav>
     </div>
   </header>
 
   <main id="main">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="container hero-inner">
-        <div class="hero-text">
-          <h1 id="hero-title">Book a doctor near you, at any hour.</h1>
-          <p class="lead">See the clinic's real free times and book in under a minute. Rather talk to someone? Every clinic's phone number is one tap away.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary btn-lg" href="book.html">Book an appointment</a>
-            <a class="btn btn-ghost btn-lg" href="#clinics">Call a clinic</a>
+    <!-- ══ HERO ══ -->
+    <section class="hero on-navy" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-left">
+          <p class="hero-eyebrow"><span class="pulse-dot" aria-hidden="true"></span>Live free times in Phagwara and Jalandhar</p>
+          <h1 id="hero-title" class="hero-title">Find the <span class="gold-text">right doctor</span> <span class="outline-text">today</span></h1>
+          <p class="hero-description">See each doctor's face and real free times, book in under a minute, and pay the small booking fee online or at the clinic. Rather talk to someone? Every clinic is one call away.</p>
+
+          <div class="hero-stat-row">
+            <div class="hero-stat"><span class="stat-value" id="stat-doctors">0</span><span class="stat-label">Doctors</span></div>
+            <div class="hero-stat"><span class="stat-value" id="stat-clinics">0</span><span class="stat-label">Clinics and hospitals</span></div>
+            <div class="hero-stat"><span class="stat-value" id="stat-free">0</span><span class="stat-label">Free times this week</span></div>
           </div>
+
+          <div class="hero-cta-group">
+            <a class="btn btn-gold btn-lg" href="book.html">Book an appointment</a>
+            <a class="btn btn-outline btn-lg" href="#clinics">Call a clinic</a>
+            <a class="btn btn-ghost btn-lg" href="admin.html">For clinics</a>
+          </div>
+
+          <form class="hero-search" id="hero-search" role="search">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M10 2a8 8 0 0 1 6.32 12.9l5.39 5.4-1.41 1.41-5.4-5.39A8 8 0 1 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
+            <label class="sr-only" for="hero-search-input">Search a doctor or specialty</label>
+            <input type="search" id="hero-search-input" placeholder="Doctor, specialty, clinic…" autocomplete="off">
+            <button class="search-btn" type="submit">Search</button>
+          </form>
         </div>
 
-        <section class="next-free" aria-labelledby="next-title">
-          <h2 id="next-title">Next free appointments</h2>
-          <ul id="next-free-list" class="next-list"></ul>
-          <p class="small muted">Times update as soon as someone books.</p>
-        </section>
+        <!-- Featured: the soonest free appointment -->
+        <aside class="hero-right" aria-labelledby="match-title">
+          <article class="match-card" id="match-card">
+            <div class="match-card-header">
+              <h2 id="match-title">Next free appointment</h2>
+            </div>
+            <p class="muted">Loading free times…</p>
+          </article>
+        </aside>
       </div>
     </section>
 
-    <section class="container section" aria-labelledby="doctors-title">
-      <div class="section-head">
-        <h2 id="doctors-title">Meet the doctors</h2>
-        <p class="muted">See who will treat you before you book.</p>
+    <!-- ══ SPECIALTIES ══ -->
+    <section class="container section" aria-labelledby="spec-title">
+      <div class="section-header">
+        <h2 id="spec-title">Browse by <span>specialty</span></h2>
+        <p>Choose what you need. The list of doctors below updates straight away.</p>
       </div>
-      <ul id="home-doctors" class="doctor-grid"></ul>
+      <div class="categories-grid" id="categories"></div>
     </section>
 
+    <!-- ══ DOCTORS LISTING ══ -->
+    <section id="doctors" class="container section" aria-labelledby="doctors-title">
+      <div class="section-header">
+        <h2 id="doctors-title">Meet the <span>doctors</span></h2>
+        <p>See who will treat you before you book. Filter by specialty, clinic, language and availability.</p>
+      </div>
+
+      <div class="search-row">
+        <div class="hero-search">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M10 2a8 8 0 0 1 6.32 12.9l5.39 5.4-1.41 1.41-5.4-5.39A8 8 0 1 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
+          <label class="sr-only" for="search-input">Search doctors</label>
+          <input type="search" id="search-input" placeholder="Name, specialty or clinic" autocomplete="off">
+        </div>
+        <div class="sort-box">
+          <label for="sort-by">Sort by</label>
+          <select id="sort-by">
+            <option value="next">Soonest free time</option>
+            <option value="name">Name A to Z</option>
+            <option value="experience">Most experience</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="listings-layout">
+        <aside aria-label="Filters">
+          <button class="filter-mobile-toggle" id="filter-mobile-toggle" type="button" aria-expanded="false" aria-controls="filter-panel">Show filters</button>
+          <form class="filter-panel" id="filter-panel" hidden>
+            <div class="filter-panel-header">
+              <h3>Filters</h3>
+              <button class="btn-reset-filters" type="reset">Reset</button>
+            </div>
+            <div class="filter-group">
+              <label for="filter-specialty">Specialty</label>
+              <select id="filter-specialty" name="specialty"></select>
+            </div>
+            <div class="filter-group">
+              <label for="filter-clinic">Clinic or hospital</label>
+              <select id="filter-clinic" name="clinic"></select>
+            </div>
+            <div class="filter-group">
+              <label for="filter-language">Speaks</label>
+              <select id="filter-language" name="language"></select>
+            </div>
+            <div class="filter-group">
+              <label for="filter-days">Free within</label>
+              <select id="filter-days" name="days">
+                <option value="0">Any time</option>
+                <option value="1">Today</option>
+                <option value="3">The next 3 days</option>
+                <option value="7">The next 7 days</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="filter-exp">Minimum experience</label>
+              <div class="range-display"><span>0 years</span><strong id="exp-value">Any</strong></div>
+              <input type="range" id="filter-exp" name="experience" min="0" max="20" step="1" value="0">
+            </div>
+            <div class="filter-group">
+              <label class="check-row"><input type="checkbox" id="filter-online" name="online"> Online booking only</label>
+            </div>
+          </form>
+        </aside>
+
+        <div>
+          <div class="results-info">
+            <p class="results-count" id="results-count" aria-live="polite"></p>
+          </div>
+          <ul class="cards-grid" id="cards-container"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CLINICS ══ -->
     <section id="clinics" class="section section-tint" aria-labelledby="clinics-title">
       <div class="container">
-        <div class="section-head">
-          <h2 id="clinics-title">Rather call? Contact a clinic</h2>
-          <p class="muted">Useful if you don't use the internet often, need to reschedule, or have a question before booking.</p>
+        <div class="section-header">
+          <h2 id="clinics-title">Rather <span>call</span>? Contact a clinic</h2>
+          <p>Useful if you don't use the internet often, need to change an appointment, or have a question before booking.</p>
         </div>
-        <ul id="clinic-list" class="clinic-list"></ul>
+        <ul class="contact-cards" id="clinic-list"></ul>
+
+        <div class="info-bloc">
+          <h3>Good to know</h3>
+          <ul class="info-list">
+            <li><span class="info-bullet" aria-hidden="true">!</span><div class="info-text"><strong>Emergencies</strong><span>Don't book online. Call 112, or 108 for an ambulance.</span></div></li>
+            <li><span class="info-bullet" aria-hidden="true">₹</span><div class="info-text"><strong>Booking fee</strong><span>₹20 per online booking, paid online or at the clinic. The consultation is paid to the doctor.</span></div></li>
+            <li><span class="info-bullet" aria-hidden="true">↺</span><div class="info-text"><strong>Free cancellation</strong><span>Cancel at least 2 hours before and an online payment is refunded.</span></div></li>
+            <li><span class="info-bullet" aria-hidden="true">✓</span><div class="info-text"><strong>Your data</strong><span>This demo keeps everything in your own browser. Nothing is sent to a server.</span></div></li>
+          </ul>
+        </div>
       </div>
     </section>
 
+    <!-- ══ HOW IT WORKS ══ -->
     <section class="container section" aria-labelledby="how-title">
-      <h2 id="how-title">How booking works</h2>
+      <div class="section-header">
+        <h2 id="how-title">How booking <span>works</span></h2>
+      </div>
       <ol class="steps">
         <li><strong>Create a free account</strong> with your name, email and phone number.</li>
-        <li><strong>Choose a doctor</strong> by name or specialty, and look at their profile.</li>
-        <li><strong>Pick a free time</strong> and confirm. You get a token slip with your queue number.</li>
-        <li><strong>Come to the clinic</strong> on time. You can cancel online or call the clinic to change it.</li>
+        <li><strong>Choose a doctor</strong> by specialty, and look at their profile and photo.</li>
+        <li><strong>Pick a free time</strong> and pay the ₹20 fee online or at the clinic.</li>
+        <li><strong>Show your token slip</strong> at the clinic. Cancel online or call to change it.</li>
       </ol>
     </section>
   </main>
 
+  <!-- ══ FOOTER ══ -->
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>&copy; 2026 WebCareBooking. CSE326 Internet Programming project, Lovely Professional University. <a href="https://github.com/Nata11W/webcarebooking">Source code on GitHub</a></p>
-      <p class="small">Demo application: data is stored only in your browser, and clinic phone numbers are placeholders. Not for real medical use.</p>
+      <p class="footer-brand"><span class="logo-mark" aria-hidden="true"></span>WebCareBooking</p>
+      <nav aria-label="Footer">
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="index.html#doctors">Doctors</a>
+          <a href="index.html#clinics">Call a clinic</a>
+          <a href="book.html">Book appointment</a>
+          <a href="admin.html">Clinic dashboard</a>
+          <a href="https://github.com/Nata11W/webcarebooking">Source code on GitHub</a>
+        </div>
+      </nav>
+      <p>&copy; 2026 WebCareBooking. CSE326 Internet Programming project, Lovely Professional University.</p>
+      <p class="small">Demo application: data is stored only in your browser, payments are simulated and clinic phone numbers are placeholders. Not for real medical use.</p>
     </div>
   </footer>
 

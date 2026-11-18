@@ -126,11 +126,15 @@ const UI = (function () {
     const toggle = document.querySelector('.nav-toggle');
     const menu = document.getElementById('nav-menu');
     if (!toggle || !menu) return;
-    toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') === 'true';
-      toggle.setAttribute('aria-expanded', String(!open));
-      menu.classList.toggle('open', !open);
-    });
+    const setOpen = (open) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close the menu' : 'Open the menu');
+      menu.classList.toggle('open', open);
+    };
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    // Close the phone menu after choosing a link (useful for links to the same page, like #clinics)
+    menu.addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
   }
 
   // Theme is applied immediately to avoid a white flash

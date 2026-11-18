@@ -79,6 +79,10 @@ In VS Code you can also use the **Live Server** extension.
 
 **Demo admin login:** `admin@webcare.com` / `Admin@123`
 
+## Design
+
+The interface takes its inspiration from my other project, **CURSUS BF** (an education guide for Burkina Faso): a deep navy navbar, hero and footer with a gold accent, a highlighted headline, live figures, a search bar, a featured "next free appointment" card, specialty cards, and a doctor list with a filter sidebar, sorting and a results count. Clinics are shown as contact cards with a green call button. The booking confirmation keeps its OPD-style token slip.
+
 ## Payments (demo)
 
 Both sides of the revenue model work as a **clearly labelled demo**. **No money is taken and no card or bank details are ever asked for.**
